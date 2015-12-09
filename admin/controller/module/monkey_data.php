@@ -7,13 +7,12 @@
  *
  */
 
-class ControllerModulemonkeydata extends Controller
-{
+class ControllerModulemonkeydata extends Controller {
 
     private $error = array();
 
-    public function index()
-    {
+    public function index() {
+
         $this->load->language('module/monkey_data');
 
         $this->document->setTitle($this->language->get('heading_title'));
@@ -28,39 +27,51 @@ class ControllerModulemonkeydata extends Controller
 
         $hash = $this->model_module_monkey_data->LoadHash();
 
-
+        $data = array();
+        $data['tr'] = [];
+        $data['tr']['module_name'] = $this->language->get('heading_title');
+        
         if (version_compare(VERSION, '2.0', '>=')) {
-            $this->template = 'module/monkey_data_2.tpl';
-            $data['breadcrumbs'] = array();
-
-            $data['breadcrumbs'][] = array(
-                'text' => $this->language->get('text_home'),
-                'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => false
-            );
-
-            $data['breadcrumbs'][] = array(
-                'text' => $this->language->get('Moduly'),
-                'href' => $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => ' :: '
-            );
-
-            $data['breadcrumbs'][] = array(
-                'text' => $this->language->get('heading_title'),
-                'href' => $this->url->link('module/monkey_data', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => ' :: '
-            );
-
-
-            $data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
-
-            $data['hash'] = $hash->row['value'];
-            $data['column_left'] = $this->load->controller('common/column_left');
-            $data['header'] = $this->load->controller('common/header');
-            $data['footer'] = $this->load->controller('common/footer');
-            $this->response->setOutput($this->load->view($this->template, $data));
+            $this->v2_index($hash, $data);
         } elseif (version_compare(VERSION, '1.5', '>=')) {
-            $this->template = 'module/monkey_data_1.tpl';
+            $this->v1_index($hash, $data);
+        }
+    }
+
+    private function v2_index($hash, $data = array()) {
+        $this->template = 'module/monkey_data_2.tpl';
+        $data['breadcrumbs'] = array();
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => false
+        );
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('Moduly'),
+            'href' => $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => ' :: '
+        );
+
+        $data['breadcrumbs'][] = array(
+            'text' => $this->language->get('heading_title'),
+            'href' => $this->url->link('module/monkey_data', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => ' :: '
+        );
+
+
+        $data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
+
+        $data['hash'] = $hash->row['value'];
+        $data['column_left'] = $this->load->controller('common/column_left');
+        $data['header'] = $this->load->controller('common/header');
+        $data['footer'] = $this->load->controller('common/footer');
+        $this->response->setOutput($this->load->view($this->template, $data));
+    }
+    
+    private function v1_index($hash, $data = array()) {
+        $this->template = 'module/monkey_data_1.tpl';
             $this->data['breadcrumbs'] = array();
 
             $this->data['breadcrumbs'][] = array(
@@ -89,14 +100,9 @@ class ControllerModulemonkeydata extends Controller
             );
             $this->data['hash'] = $hash->row['value'];
             $this->response->setOutput($this->render());
-        }
-
-
     }
 
-
-    private function validate()
-    {
+    private function validate() {
         if (!$this->user->hasPermission('modify', 'module/monkey_data')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
@@ -108,8 +114,7 @@ class ControllerModulemonkeydata extends Controller
         }
     }
 
-    public function install()
-    {
+    public function install() {
 
         $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
         $randomString = '';
@@ -125,12 +130,9 @@ class ControllerModulemonkeydata extends Controller
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 1, 'hash' => md5($randomString)));
         }
-
-
     }
 
-    public function uninstall()
-    {
+    public function uninstall() {
 
         $this->load->model('setting/setting');
 
@@ -140,9 +142,7 @@ class ControllerModulemonkeydata extends Controller
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 0, 'hash' => ''));
         }
-
     }
-
 
 }
 

@@ -11,34 +11,33 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model\XmlModel;
  * @author MD Developers
  */
 class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
-    
     /**
-    * Preparing orders is called 'per partes' in recursive function. In each call is start shifted by the length of step.
-    * Default value of step is 1000.
-    * If you mean that default value is inaccurate, you can change value: 
-    * 
-    * protected $step = 100;
-    * 
-    */
-    
-    
+     * Preparing orders is called 'per partes' in recursive function. In each call is start shifted by the length of step.
+     * Default value of step is 1000.
+     * If you mean that default value is inaccurate, you can change value: 
+     * 
+     * protected $step = 100;
+     * 
+     */
+
     /**
      * For use PDO set $config['database']['use'] = true | Usage: $this->connection->query("SELECT ...");
      *
      * @var array
      */
-       protected $config = array(
+    protected $config = array(
         'database' => array(
-            'use'  => false,
-            'host' => "localhost",
-            'name' => "db_name",
-            'user' => "db_user",
-            'pass' => "db_pass"
+            'use' => true,
+            'host' => DB_HOSTNAME,
+            'name' => DB_DATABASE,
+            'user' => DB_USERNAME,
+            'pass' => DB_PASSWORD,
+            'prefix' => DB_PREFIX
         ),
         'security' => array(
-            'hash' => "123456",
-            'login' => "john",
-            'pass' => "dow"
+            'hash' => "",
+            'login' => "",
+            'pass' => ""
         )
     );
 
@@ -52,8 +51,16 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     protected $eshopId = "1";
 
-    
-   
+    public function authenticateHash($hash) {
+        if (version_compare(VERSION, '2.0', '>=')) {
+            $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 0,1;")->fetchObject();
+        } elseif (version_compare(VERSION, '1.5', '>=')) {
+            $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `group` = 'monkey_data' && `key` = 'hash' LIMIT 0,1;")->fetchObject();
+        }
+        $this->config['security']['hash'] = $hash_real->value;
+        return parent::authenticateHash($hash);
+    }
+
     /**
      * The function chooses a list of orders in selected period. The period is defined by parametres date_from and date_to.
      * The condition is met by orders which are created or updated in the selected period.
@@ -68,25 +75,27 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     public function getOrdersItems($date_from, $date_to, $start, $step) {
         $results = $this->connection->query(
-            "SELECT "
-          .   "`order`.order_id, store_id, store_name, "
-          .   "date_added, date_modified, order_status_id, "
-          .   "`order_total`.`value` as PriceWithoutVat, "
-          .   "customer_id, comment, `order`.`total`, "
-          .   "currency_id, currency_code "                
-          . "FROM `order` "
-          . "INNER JOIN `order_total` ON "
-          .   "`order`.`order_id` = `order_total`.`order_id` "
-          . "WHERE ((`order`.`date_added` >= '{$date_from}' "
-          .   "AND `order`.`date_added` <= '{$date_to}')"
-          .   "OR (`order`.`date_modified` >= '{$date_from}'"
-          .   "AND `order`.`date_modified` <= '{$date_to}')) "
-          .   "AND `order_total`.`code` = 'sub_total' "
-          . "LIMIT {$start}, {$step}"
-        )->fetchAll();
-          
+                        "SELECT "
+                        . "`o`.order_id, store_id, store_name, "
+                        . "date_added, date_modified, order_status_id, "
+                        . "`ot`.`value` as PriceWithoutVat, "
+                        . "customer_id, comment, `o`.`total`, "
+                        . "currency_id, currency_code "
+                        . "FROM {$this->getTableName('order')} as o "
+                        . "INNER JOIN {$this->getTableName('order_total')} as ot ON "
+                        . "`o`.`order_id` = `ot`.`order_id` "
+                        . "WHERE ((`o`.`date_added` >= '{$date_from} 00:00:00' "
+                        . "AND `o`.`date_added` <= '{$date_to} 23:59:59')"
+                        . "OR (`o`.`date_modified` >= '{$date_from} 00:00:00'"
+                        . "AND `o`.`date_modified` <= '{$date_to} 23:59:59')) "
+                        . "AND `ot`.`code` = 'sub_total' "
+                        . "LIMIT {$start}, {$step}"
+                )->fetchAll();
+                        
+        
+
         $output = array();
-    
+
         foreach ($results as $result) {
             $output[] = array(
                 'id' => $result["order_id"],
@@ -105,7 +114,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'currency_id' => $result["currency_id"]
             );
         }
-       
+
         return $output;
     }
 
@@ -126,35 +135,35 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     public function getPaymentsItems($paymentIds) {
         $results = $this->connection->query(
-            "SELECT "
-          .   "`order`.`order_id`, payment_method "         
-          . "FROM `order` "
-          . "WHERE `order`.`order_id` "
-          .   "IN ('". implode("', '", $paymentIds)."') "
-        )->fetchAll();
-                
+                        "SELECT "
+                        . "`o`.`order_id`, payment_method "
+                        . "FROM {$this->getTableName('order')} as `o` "
+                        . "WHERE `o`.`order_id` "
+                        . "IN ('" . implode("', '", $paymentIds) . "') "
+                )->fetchAll();
+
         $output = array();
-        
+
         foreach ($results as $result) {
-            
+
             $payment = $this->connection->query(
-                  "SELECT value "       
-                . "FROM `order_total` "
-                . "WHERE order_id = {$result["order_id"]} "
-                .   "AND code = 'payment' "
-             )->fetch();
-            
+                            "SELECT value "
+                            . "FROM {$this->getTableName('order_total')} as `ot` "
+                            . "WHERE order_id = {$result["order_id"]} "
+                            . "AND code = 'payment' "
+                    )->fetch();
+
             $payment = isset($payment['value']) ? $payment['value'] : 0;
 
             $output[] = array(
                 'id' => $result["order_id"],
                 'payment_name' => $result["payment_method"],
                 'payment_price' => $payment,
-                'payment_price_without_vat' =>  $payment
-            );  
+                'payment_price_without_vat' => $payment
+            );
         }
-               
-       return $output;
+
+        return $output;
     }
 
     /**
@@ -168,35 +177,35 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      *
      * The list can be implemented under a condition from actually used orders Shipping IDs, this list is available as a $shipppingIds field.
      * If you decide not to use the list of ids of shipping found in orders, the export can be slower and more data-demanding, in case of larger amount of shipping types.
- 
+
      * 
      * @param array $shipppingIds
      * @return array
      */
     public function getShippingsItems($shipppingIds) {
-        
-         $results = $this->connection->query(
-            "SELECT "
-          .   "`order`.`order_id`, shipping_method, value "            
-          . "FROM `order` "
-          . "INNER JOIN `order_total` ON "
-          .   "`order`.`order_id` = `order_total`.`order_id` "
-          . "WHERE `order`.`order_id` "
-          .   "IN ('". implode("', '", $shipppingIds)."') "
-          .   "AND (code = 'shipping') "
-         )->fetchAll();
 
-         $output = array();
-                  
-         foreach ($results as $result) {
-            $output[] = array (
+        $results = $this->connection->query(
+                        "SELECT "
+                        . "`o`.`order_id`, shipping_method, value "
+                        . "FROM {$this->getTableName('order')} as `o` "
+                        . "INNER JOIN {$this->getTableName('order_total')} as `ot` ON "
+                        . "`o`.`order_id` = `ot`.`order_id` "
+                        . "WHERE `o`.`order_id` "
+                        . "IN ('" . implode("', '", $shipppingIds) . "') "
+                        . "AND (code = 'shipping') "
+                )->fetchAll();
+
+        $output = array();
+
+        foreach ($results as $result) {
+            $output[] = array(
                 'id' => $result["order_id"],
-                'shipping_name' => $result["shipping_method"], 
-                'shipping_price' => $result["value"],          
+                'shipping_name' => $result["shipping_method"],
+                'shipping_price' => $result["value"],
                 'shipping_price_without_vat' => $result["value"]
             );
-         }
-         
+        }
+
         return $output;
     }
 
@@ -219,23 +228,23 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @param array $orderIds
      * @return array
      */
-    public function getProductsItems($orderIds) { 
+    public function getProductsItems($orderIds) {
         $results = $this->connection->query(
-            "SELECT "
-          .   "`order_product`.`product_id`, order_id, price, tax "
-          .   "total, name, quantity, category_id "            
-          . "FROM `order_product` "
-          . "INNER JOIN `product_to_category` ON "
-          .   "`order_product`.`product_id` = `product_to_category`.`product_id` "
-          . "WHERE order_id "
-          .   "IN ('". implode("', '", $orderIds)."')"
-        )->fetchAll();
-        
+                        "SELECT "
+                        . "`op`.`product_id`, order_id, price, tax, "
+                        . "total, name, quantity, category_id "
+                        . "FROM {$this->getTableName('order_product')} as `op` "
+                        . "INNER JOIN {$this->getTableName('product_to_category')} as `pc` ON "
+                        . "`op`.`product_id` = `pc`.`product_id` "
+                        . "WHERE order_id "
+                        . "IN ('" . implode("', '", $orderIds) . "')"
+                )->fetchAll();
+
         $output = array();
-        
+
         foreach ($results as $result) {
             $tax = (empty($result["tax"])) ? 0 : $result["tax"];
-            
+
             $output[] = array(
                 'id' => $result["product_id"],
                 'order_id' => $result["order_id"],
@@ -264,18 +273,18 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     public function getOrderStatusesItems($orderStatusesIds) {
         $results = $this->connection->query(
-            "SELECT "
-          .   " order_status_id, name "          
-          . "FROM `order_status` "
-          . "WHERE order_status_id "
-          .   "IN ('". implode("', '", $orderStatusesIds)."')"
-        )->fetchAll();
+                        "SELECT "
+                        . " order_status_id, name "
+                        . "FROM {$this->getTableName('order_status')} "
+                        . "WHERE order_status_id "
+                        . "IN ('" . implode("', '", $orderStatusesIds) . "')"
+                )->fetchAll();
 
         $output = array();
-        
+
         foreach ($results as $result) {
             $output[] = array(
-                'id' => $result["order_status_id"], 
+                'id' => $result["order_status_id"],
                 'order_status_name' => $result["name"]
             );
         }
@@ -305,32 +314,32 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     public function getCustomersItems($customerIds) {
         $results = $this->connection->query(
-            "SELECT "
-          .   "customer_id, email, payment_city, payment_country, "
-          .   "payment_firstname, payment_postcode, payment_company "
-          . "FROM `order` "         
-          . "WHERE customer_id "
-          .   "IN ('". implode("', '", $customerIds)."') "
-        )->fetchAll();
-        
+                        "SELECT "
+                        . "customer_id, email, payment_city, payment_country, "
+                        . "payment_firstname, payment_postcode, payment_company "
+                        . "FROM {$this->getTableName('order')} "
+                        . "WHERE customer_id "
+                        . "IN ('" . implode("', '", $customerIds) . "') "
+                )->fetchAll();
+
         $output = array();
-        
+
         foreach ($results as $result) {
 
             $registration = $result["customer_id"] == 0 ? false : $result["customer_id"];
             $customerType = $result["payment_company"] == null ? 0 : 1;
-            
+
             $output[] = array(
-                    'id' => $result["customer_id"],
-                    'customer_email' => $result["email"],
-                    'customer_city' => $result["payment_city"],
-                    'customer_country' => $result["payment_country"],
-                    'customer_firstname' => $result["payment_firstname"],
-                    'customer_registration' => $registration,    
-                    'customer_zip_code' => $result["payment_postcode"],
-                    'customer_vat_status' => 1,     
-                    'customer_type' => $customerType     
-                );
+                'id' => $result["customer_id"],
+                'customer_email' => $result["email"],
+                'customer_city' => $result["payment_city"],
+                'customer_country' => $result["payment_country"],
+                'customer_firstname' => $result["payment_firstname"],
+                'customer_registration' => $registration,
+                'customer_zip_code' => $result["payment_postcode"],
+                'customer_vat_status' => 1,
+                'customer_type' => $customerType
+            );
         }
         return $output;
     }
@@ -340,21 +349,21 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * id - category ID
      * category_name - category name
      * parent_id - ID  of a parent category
- 
+
      * @return array
      */
     public function getCategoriesItems() {
-        
+
         $results = $this->connection->query(
-              "SELECT "
-            .   "`category`.`category_id`, parent_id, name "
-            . "FROM `category`"
-            . "INNER JOIN `category_description` ON "
-            .   " `category_description`.`category_id` = `category`.`category_id` "              
-        )->fetchAll();
-        
+                        "SELECT "
+                        . "`c`.`category_id`, parent_id, name "
+                        . "FROM {$this->getTableName('category')} as `c`"
+                        . "INNER JOIN {$this->getTableName('category_description')} as `cd` ON "
+                        . " `cd`.`category_id` = `c`.`category_id` "
+                )->fetchAll();
+
         $output = array();
-        
+
         foreach ($results as $result) {
             $putput[] = array(
                 'id' => $result["category_id"],
@@ -364,6 +373,9 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         }
         return $output;
     }
+    
+    private function getTableName($tableName) {
+        return "`".$this->config['database']['prefix']."{$tableName}`";
+    }
+
 }
-
-
