@@ -49,6 +49,7 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPriceEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPriceWithoutVatEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPurchasePriceEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\RuntimeEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\VersionEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingIdEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingNameEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingPriceEntity;
@@ -156,6 +157,7 @@ abstract class XmlGenerator {
         $this->showXmlHeader();
         $eshopEntity = new EshopEntity();
         echo $eshopEntity->getStartTag();
+        echo new VersionEntity();
         $this->generate();
         $time_end = MDHelper::microtime_float();
         $time = $time_end - $time_start;

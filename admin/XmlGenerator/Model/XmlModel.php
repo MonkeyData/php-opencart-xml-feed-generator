@@ -118,7 +118,7 @@ abstract class XmlModel implements XmlModelInterface {
         $this->checkConfig();
         if ($this->config['database']['use']) {
             $this->connection = MonkeyDataDbHelper::getInstance($this->config['database']);
-        }        
+        }
         $this->orders = new OrderList();
         $this->list_of_product_list = new OrderProductsList();
     }
