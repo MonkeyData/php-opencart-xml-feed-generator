@@ -139,9 +139,14 @@ abstract class XmlGenerator {
      * @var OrderProductsList
      */
     private $orderProductBean;
+    
+    public static $debug = false;
 
     public function __construct() {
         $this->model = $this->getModel();
+        if( InputHelper::handleInput("debug", false) !== false ){
+            static::$debug = true;
+        }
     }
 
     /**
@@ -150,11 +155,18 @@ abstract class XmlGenerator {
     abstract function getModel();
 
     public function run() {
+        if( !XmlGenerator::isNotDebug() ){
+            error_reporting(E_ALL);
+            echo "<pre>";
+        }
         $time_start = MDHelper::microtime_float();
         $this->handleParams();
         $this->authenticate();
         $this->categoriesList = $this->getModel()->getCategoriesItems();
-        $this->showXmlHeader();
+        if( XmlGenerator::isNotDebug() ){
+            $this->showXmlHeader();
+            
+        }
         $eshopEntity = new EshopEntity();
         echo $eshopEntity->getStartTag();
         echo new VersionEntity();
@@ -370,5 +382,9 @@ abstract class XmlGenerator {
     private function showXmlHeader() {
         header('Content-Type: application/xml; charset=utf-8');
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+    }
+    
+    public static function isNotDebug() {
+        return !static::$debug;
     }
 }
