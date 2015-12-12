@@ -91,8 +91,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                         . "AND `ot`.`code` = 'sub_total' "
                         . "LIMIT {$start}, {$step}"
                 )->fetchAll();
-                        
-        
+
+
 
         $output = array();
 
@@ -365,7 +365,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         $output = array();
 
         foreach ($results as $result) {
-            $putput[] = array(
+            $output[] = array(
                 'id' => $result["category_id"],
                 'category_name' => $result["name"],
                 'parent_id' => $result["parent_id"]
@@ -373,9 +373,9 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         }
         return $output;
     }
-    
+
     private function getTableName($tableName) {
-        return "`".$this->config['database']['prefix']."{$tableName}`";
+        return "`" . $this->config['database']['prefix'] . "{$tableName}`";
     }
 
 }
