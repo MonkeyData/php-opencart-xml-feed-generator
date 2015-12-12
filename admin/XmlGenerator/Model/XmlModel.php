@@ -23,7 +23,6 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingBean;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\MonkeyDataDbHelper;
 
-
 /**
  * Class XmlModel
  * @package MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model
@@ -38,7 +37,7 @@ abstract class XmlModel implements XmlModelInterface {
      */
     protected $config = array(
         'database' => array(
-            'use'  => true,
+            'use' => true,
             'host' => "localhost",
             'name' => "db_name",
             'user' => "db_user",
@@ -50,7 +49,7 @@ abstract class XmlModel implements XmlModelInterface {
             'pass' => ""
         )
     );
-    
+
     /**
      *
      * @var MonkeyDataDbHelper 
@@ -81,13 +80,13 @@ abstract class XmlModel implements XmlModelInterface {
      * @var array
      */
     private $orderStatusesIds = array();
-    
+
     /**
      *
      * @var OrderList 
      */
     private $orders;
-    
+
     /**
      *
      * @var OrderProductsList 
@@ -122,8 +121,6 @@ abstract class XmlModel implements XmlModelInterface {
         $this->orders = new OrderList();
         $this->list_of_product_list = new OrderProductsList();
     }
-
-    
 
     /**
      * @param string $date_from
@@ -210,7 +207,9 @@ abstract class XmlModel implements XmlModelInterface {
     }
 
     // TODO: Implement
-    public function selectProducts() {}
+    public function selectProducts() {
+        
+    }
 
     /**
      *  This function prepares the list of orders statuses as key-value pairs, named ids and order_status_name,
@@ -365,8 +364,8 @@ abstract class XmlModel implements XmlModelInterface {
     public function setStep($step = 1000) {
         $this->step = $step;
     }
-    
-    public function getStep(){
+
+    public function getStep() {
         return $this->step;
     }
 
@@ -434,7 +433,12 @@ abstract class XmlModel implements XmlModelInterface {
      */
     private function getCategoryTree($categoryList, $categoryId, $usageCategoriesList = array()) {
         $result = array();
-        $index = array_search($categoryId, array_column($categoryList, 'id'));
+        $categoryListIds = array();
+        $len = sizeof($categoryList);
+        for ($i = 0; $i < $len; $i++) {
+            $categoryListIds[$i] = $categoryList[$i]['id'];
+        }
+        $index = array_search($categoryId, $categoryListIds);
         if ($index !== false) {
             $category = $categoryList[$index];
             if (!is_null($category['parent_id'])) {
@@ -474,4 +478,5 @@ abstract class XmlModel implements XmlModelInterface {
             exit();
         }
     }
+
 }
