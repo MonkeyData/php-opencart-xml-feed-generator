@@ -330,7 +330,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             $customerType = $result["payment_company"] == null ? 0 : 1;
 
             $output[] = array(
-                'id' => $result["customer_id"],
+                'id' => md5($result["customer_email"]),
                 'customer_email' => $result["email"],
                 'customer_city' => $result["payment_city"],
                 'customer_country' => $result["payment_country"],
