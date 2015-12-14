@@ -326,7 +326,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
         foreach ($results as $result) {
 
-            $registration = $result["customer_id"] == 0 ? false : $result["customer_id"];
+            $registration = $result["customer_id"] == 0 ? 0 : 1;
             $customerType = $result["payment_company"] == null ? 0 : 1;
 
             $output[] = array(
