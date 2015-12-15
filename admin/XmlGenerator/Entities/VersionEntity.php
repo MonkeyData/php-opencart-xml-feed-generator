@@ -14,7 +14,7 @@ class VersionEntity extends Entity{
      * @param mixed $value
      */
     public function __construct() {
-        parent::__construct("VERSION", Entity::DT_string, "1.0.2");
+        parent::__construct("VERSION", Entity::DT_string, "1.0.3");
     }
     
     protected function setting() {
