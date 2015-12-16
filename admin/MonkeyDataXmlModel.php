@@ -50,6 +50,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @var string
      */
     protected $eshopId = "1";
+    
+    protected $customers = array();
 
     public function authenticateHash($hash) {
         if (version_compare(VERSION, '2.0', '>=')) {
@@ -79,8 +81,11 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                         . "`o`.order_id, store_id, store_name, "
                         . "date_added, date_modified, order_status_id, "
                         . "`ot`.`value` as PriceWithoutVat, "
-                        . "customer_id, comment, `o`.`total`, "
-                        . "currency_id, currency_code "
+                        . "comment, `o`.`total`, "
+                        . "currency_id, currency_code,"
+                        . " "
+                        . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
+                        . " "
                         . "FROM {$this->getTableName('order')} as o "
                         . "INNER JOIN {$this->getTableName('order_total')} as ot ON "
                         . "`o`.`order_id` = `ot`.`order_id` "
@@ -95,6 +100,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
 
         $output = array();
+        $customers = array();
 
         foreach ($results as $result) {
             $output[] = array(
@@ -108,13 +114,29 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'order_status_id' => $result["order_status_id"],
                 'payment_id' => $result["order_id"],
                 'shipping_id' => $result["order_id"],
-                'customer_id' => $result["customer_id"],
+                'customer_id' => md5($result["email"]),
                 'note' => $result["comment"],
                 'currency' => $result["currency_code"],
                 'currency_id' => $result["currency_id"]
             );
-        }
+            
+    
+            $registration = $result["customer_id"] == 0 ? 0 : 1;
+            $customerType = $result["payment_company"] == null ? 0 : 1;
 
+            $customers[md5($result["email"])] = array(
+                'id' => md5($result["email"]),
+                'customer_email' => $result["email"],
+                'customer_city' => $result["payment_city"],
+                'customer_country' => $result["payment_country"],
+                'customer_firstname' => $result["payment_firstname"],
+                'customer_registration' => $registration,
+                'customer_zip_code' => $result["payment_postcode"],
+                'customer_vat_status' => 1,
+                'customer_type' => $customerType
+            );
+        }
+        $this->customers = $customers;
         return $output;
     }
 
@@ -313,35 +335,36 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return array
      */
     public function getCustomersItems($customerIds) {
-        $results = $this->connection->query(
-                        "SELECT "
-                        . "customer_id, email, payment_city, payment_country, "
-                        . "payment_firstname, payment_postcode, payment_company "
-                        . "FROM {$this->getTableName('order')} "
-                        . "WHERE customer_id "
-                        . "IN ('" . implode("', '", $customerIds) . "') "
-                )->fetchAll();
-
-        $output = array();
-
-        foreach ($results as $result) {
-
-            $registration = $result["customer_id"] == 0 ? 0 : 1;
-            $customerType = $result["payment_company"] == null ? 0 : 1;
-
-            $output[] = array(
-                'id' => md5($result["email"]),
-                'customer_email' => $result["email"],
-                'customer_city' => $result["payment_city"],
-                'customer_country' => $result["payment_country"],
-                'customer_firstname' => $result["payment_firstname"],
-                'customer_registration' => $registration,
-                'customer_zip_code' => $result["payment_postcode"],
-                'customer_vat_status' => 1,
-                'customer_type' => $customerType
-            );
-        }
-        return $output;
+//        $results = $this->connection->query(
+//                        "SELECT "
+//                        . "customer_id, email, payment_city, payment_country, "
+//                        . "payment_firstname, payment_postcode, payment_company "
+//                        . "FROM {$this->getTableName('order')} "
+//                        . "WHERE MD5(`email`) "
+//                        . "IN ('" . implode("', '", $customerIds) . "') "
+//                )->fetchAll();
+//
+//        $output = array();
+//
+//        foreach ($results as $result) {
+//
+//            $registration = $result["customer_id"] == 0 ? 0 : 1;
+//            $customerType = $result["payment_company"] == null ? 0 : 1;
+//
+//            $output[] = array(
+//                'id' => md5($result["email"]),
+//                'customer_email' => $result["email"],
+//                'customer_city' => $result["payment_city"],
+//                'customer_country' => $result["payment_country"],
+//                'customer_firstname' => $result["payment_firstname"],
+//                'customer_registration' => $registration,
+//                'customer_zip_code' => $result["payment_postcode"],
+//                'customer_vat_status' => 1,
+//                'customer_type' => $customerType
+//            );
+//        }
+//        return $output;
+        return $this->customers;
     }
 
     /**
@@ -377,5 +400,6 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     private function getTableName($tableName) {
         return "`" . $this->config['database']['prefix'] . "{$tableName}`";
     }
+    
 
 }
