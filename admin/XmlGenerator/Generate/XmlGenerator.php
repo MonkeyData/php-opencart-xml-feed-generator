@@ -189,21 +189,26 @@ abstract class XmlGenerator {
 
     private function generate() {
         //reset XMLmodel and all his variables for each iteration run this function
+        $start = $this->model->getStart();
         $this->model = $this->getModel();
+        $this->model->setStart($start);
         
         //fill data from DB to local variables
         $this->model->prepareOrders($this->date_from, $this->date_to);
 
+        $orders = $this->model->getOrders();
+        if (count($orders) == 0) {
+            return; //end of calling this recursive function
+        }
+        
+        
         $this->orderStatusBean = $this->model->getOrderStatuses($this->model->getOrderStatusesIds());
         $this->payment = $this->model->getPayments($this->model->getPaymentIds());
         $this->shipping = $this->model->getShippings($this->model->getShipppingIds());
         $this->customerBean = $this->model->getCustomers($this->model->getCustomerIds());
         $this->orderProductBean = $this->model->getProducts($this->model->getOrderIds());
 
-        $orders = $this->model->getOrders();
-        if (count($orders) == 0) {
-            return; //end of calling this recursive function
-        }
+        
         foreach ($orders as $order) {
             $this->showShopOrder($order);
         }

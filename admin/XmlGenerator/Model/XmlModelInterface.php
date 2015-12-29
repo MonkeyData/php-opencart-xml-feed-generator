@@ -68,9 +68,6 @@ interface XmlModelInterface {
      */
     public function getCustomers($customerIds);
 
-    // TODO: Implement
-    public function selectProducts();
-
     /**
      * @param array $getOrderStatusesIds
      * @return OrderStatusList

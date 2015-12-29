@@ -2,6 +2,7 @@
 
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans;
 
+use Countable;
 use Iterator;
 
 
@@ -10,7 +11,7 @@ use Iterator;
  * @package MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans
  * @author MD Developers
  */
-abstract class BeansList implements Iterator {
+abstract class BeansList implements Iterator, Countable {
 
     /**
      * @var array
@@ -89,5 +90,10 @@ abstract class BeansList implements Iterator {
      */
     public function valid() {
         return isset($this->list[$this->position]);
+    }
+    
+    public function count() 
+    { 
+        return count($this->list);
     }
 }

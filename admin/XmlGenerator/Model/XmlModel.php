@@ -209,9 +209,7 @@ abstract class XmlModel implements XmlModelInterface {
         return $data;
     }
 
-    // TODO: Implement
-    public function selectProducts() {}
-
+    
     /**
      *  This function prepares the list of orders statuses as key-value pairs, named ids and order_status_name,
      *  then the name is searched by an id.
@@ -375,6 +373,13 @@ abstract class XmlModel implements XmlModelInterface {
      */
     public function setStart($start = 0) {
         $this->start = $start;
+    }
+    
+    /**
+     * @param int $start
+     */
+    public function getStart() {
+        return $this->start;
     }
 
     /**
