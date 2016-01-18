@@ -1,7 +1,7 @@
-# Monkey PHP OpenCart XML feed generator
+# MonkeyData PHP OpenCart XML feed generator
 
-[![Latest Stable Version](https://poser.pugx.org/monkey-data/online-store-xml-feed-generator/v/stable)](https://packagist.org/packages/monkey-data/online-store-xml-feed-generator)
-[![License](https://poser.pugx.org/monkey-data/online-store-xml-feed-generator/license)](https://packagist.org/packages/monkey-data/online-store-xml-feed-generator)
+License: MIT
+Version: 1.0.0
 
 ## Installation Instructions
 1. Download universal module for OpenCart. It is compatible with all released OpenCart versions
