@@ -28,7 +28,7 @@ class ControllerModulemonkeydata extends Controller {
         $hash = $this->model_module_monkey_data->LoadHash();
 
         $data = array();
-        $data['tr'] = [];
+        $data['tr'] = array();
         $data['tr']['module_name'] = $this->language->get('heading_title');
         
         if (version_compare(VERSION, '2.0', '>=')) {
