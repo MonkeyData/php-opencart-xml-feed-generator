@@ -137,7 +137,7 @@ class ControllerModulemonkeydata extends Controller {
         $this->load->model('setting/setting');
 
         if (version_compare(VERSION, '2.0', '>=')) {
-            $this->db->query("DELETE FROM FROM `" . DB_PREFIX . "setting` WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 1;");
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 1;");
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 0));
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 0, 'hash' => ''));
