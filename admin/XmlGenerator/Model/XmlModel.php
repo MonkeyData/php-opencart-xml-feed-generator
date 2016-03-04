@@ -441,9 +441,8 @@ abstract class XmlModel implements XmlModelInterface {
         $result = array();
         
         $categoryListIds = array();
-        $len = count($categoryList);
-        for ($i = 0; $i < $len; $i++) {
-            $categoryListIds[$i] = $categoryList[$i]['id'];
+        foreach($categoryList as $i => $value){
+            $categoryListIds[$i] = $value['id'];
         }
         $index = array_search($categoryId, $categoryListIds);
         
