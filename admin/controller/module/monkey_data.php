@@ -124,7 +124,7 @@ class ControllerModulemonkeydata extends Controller {
 
         $this->load->model('setting/setting');
 
-        if (version_compare(VERSION, '2.0', '>=')) {
+        if (version_compare(VERSION, '2.0.1.0', '>=')) {
             $this->db->query("INSERT INTO `" . DB_PREFIX . "setting` (`code`, `key`, `value`) VALUES ('monkey_data_tmp', 'monkey_data_hash', '" . md5($randomString) . "');");
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 1));
         } elseif (version_compare(VERSION, '1.5', '>=')) {
@@ -136,7 +136,7 @@ class ControllerModulemonkeydata extends Controller {
 
         $this->load->model('setting/setting');
 
-        if (version_compare(VERSION, '2.0', '>=')) {
+        if (version_compare(VERSION, '2.0.1.0', '>=')) {
             $this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 1;");
             $this->model_setting_setting->editSetting('monkey_data', array('monkey_data_status' => 0));
         } elseif (version_compare(VERSION, '1.5', '>=')) {
