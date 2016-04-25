@@ -12,3 +12,9 @@ Note: In any case, do NOT delete this folder, only add new files!!!
 4. Click through to module detail, where you will find the URL of the export file
 5. Copy this URL, put it into MonkeyData app -> Your project -> Resource Manager -> OpenCart resource -> input field and save
 6. Data will automatically start downloading
+
+
+**For the proper functioning of the expansion is necessary:**
+
+1. online store running on server with PHP 5.3 or higher
+2. PDO module installed in PHP
