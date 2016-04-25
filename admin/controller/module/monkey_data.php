@@ -65,6 +65,11 @@ class ControllerModulemonkeydata extends Controller {
 
         $data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
 
+        $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
+        $data['url'] = $url;
+        $data['urlLength'] = strlen($url);
+
+
         $data['hash'] = $hash->row['value'];
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['header'] = $this->load->controller('common/header');
@@ -100,6 +105,11 @@ class ControllerModulemonkeydata extends Controller {
                 'common/header',
                 'common/footer',
             );
+
+            $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
+            $this->data['url'] = $url;
+            $this->data['urlLength'] = strlen($url);
+
             $this->data['hash'] = $hash->row['value'];
             $this->response->setOutput($this->render());
     }
