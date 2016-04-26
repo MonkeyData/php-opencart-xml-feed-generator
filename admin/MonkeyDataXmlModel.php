@@ -143,8 +143,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return array
      */
     public function getOrdersItems($date_from, $date_to, $start, $step) {
-        $date_from = $this->syncTimeWithEshop($date_from . ' 00:00:00')->format('Y-m-d') . ' 00:00:00';
-        $date_to = $this->syncTimeWithEshop($date_to . ' 23:59:59')->format('Y-m-d') . ' 23:59:59';
+        $date_from = $this->syncTimeWithEshop($date_from . ' 00:00:00')->format("Y-m-d H:i:s");
+        $date_to = $this->syncTimeWithEshop($date_to . ' 23:59:59')->format("Y-m-d H:i:s");
         $results = $this->connection->query(
                         "SELECT "
                         . " `o`.order_id, store_id, store_name, "
@@ -174,8 +174,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'id' => $result["order_id"],
                 'shop_name' => $result["store_name"],
                 'shop_id' => $result["store_id"],
-                'date_created' => $this->syncTimeWithEshop($result["date_added"])->format('c'),
-                'date_updated' => $this->syncTimeWithEshop($result["date_modified"])->format('c'),
+                'date_created' => $this->syncTimeWithEshop($result["date_added"])->format(DateTime::ISO8601),
+                'date_updated' => $this->syncTimeWithEshop($result["date_modified"])->format(DateTime::ISO8601),
                 'price' => $result["total"],
                 'price_without_vat' => $result["PriceWithoutVat"],
                 'order_status_id' => $result["order_status_id"],
@@ -203,7 +203,6 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'customer_type' => $customerType
             );
         }
-        var_dump($output);exit;
         $this->customers = $customers;
         return $output;
     }
