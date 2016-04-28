@@ -21,6 +21,8 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ProductCategoryBeans;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ProductsList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingBean;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingList;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Config;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Exceptions\MonkeyDataMissingInputException;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\MonkeyDataDbHelper;
 
 
@@ -45,9 +47,9 @@ abstract class XmlModel implements XmlModelInterface {
             'pass' => "db_password"
         ),
         'security' => array(
-            'hash' => "",
-            'login' => "",
-            'pass' => ""
+            // 'hash' => "",
+            // 'login' => "",
+            // 'pass' => ""
         )
     );
     
@@ -113,14 +115,25 @@ abstract class XmlModel implements XmlModelInterface {
      * @var string
      */
     protected $eshopId = "1";
+    
+    /**
+     *
+     * @var Config 
+     */
+    protected $configObject = null;
 
-    public function __construct() {
+    public function __construct(\MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Config $config = null) {
         $this->checkConfig();
         if ($this->config['database']['use']) {
             $this->connection = MonkeyDataDbHelper::getInstance($this->config['database']);
         }
         $this->orders = new OrderList();
         $this->list_of_product_list = new OrderProductsList();
+        
+        if($config === null){
+            $config = new Config();
+        }
+        $this->setConfig($config);
     }
 
     
@@ -269,7 +282,7 @@ abstract class XmlModel implements XmlModelInterface {
      * @param array $row
      * @param OrderProductsList $list_of_product_list
      * @return OrderProductsList
-     * @throws \MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Exceptions\MonkeyDataMissingInputException
+     * @throws MonkeyDataMissingInputException
      */
     public function setProductList($row, $list_of_product_list) {
         $order_id = $row['order_id'];
@@ -306,7 +319,7 @@ abstract class XmlModel implements XmlModelInterface {
      * @param $row
      * @param ProductCategoriesList $categoriesList
      * @param string $productId
-     * @throws \MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Exceptions\MonkeyDataMissingInputException
+     * @throws MonkeyDataMissingInputException
      */
     public function setCategory($row, $categoriesList, $productId) {
         $categoryBean = new CategoryBean($row);
@@ -346,11 +359,24 @@ abstract class XmlModel implements XmlModelInterface {
     }
 
     /**
+     * Function to get security hash
+     * @return type
+     */
+    public function getAuthenticationHash() {
+        $hash = $this->getConfig()->getHash();
+        if(!empty($hash)){
+            return $hash;
+        }
+        throw new \Exception('Hash not defined. Look at https://github.com/MonkeyData/php-online-store-xml-feed-generator');
+    }
+    
+    
+    /**
      * @param string $hash
      * @return bool
      */
     public function authenticateHash($hash) {
-        return $this->config['security']['hash'] === $hash;
+        return $this->getAuthenticationHash() === $hash;
     }
 
     public function authenticateLogin($login, $password) {
@@ -485,4 +511,22 @@ abstract class XmlModel implements XmlModelInterface {
             exit();
         }
     }
+    
+    /**
+     * 
+     * @return Config
+     */
+    public function getConfig() {
+        return $this->configObject;
+    }
+
+    /**
+     * 
+     * @param Config $config
+     */
+    public function setConfig(Config $config) {
+        $this->configObject = $config;
+    }
+
+
 }

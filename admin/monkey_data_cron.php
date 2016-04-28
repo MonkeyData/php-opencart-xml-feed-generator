@@ -29,5 +29,10 @@ defined('VERSION') || define('VERSION', $matches[1]);
 require_once __DIR__ . '/MonkeyDataXmlModel.php';
 require_once __DIR__ . '/MonkeyDataExampleXmlGenerator.php';
 
-$xmlGenerator = new MonkeyDataExampleXmlGenerator();
-$xmlGenerator->run();
+try{
+    $xmlGenerator = new MonkeyDataExampleXmlGenerator();
+    $xmlGenerator->run();
+}catch(Exception $e){
+    echo "<pre>";
+    var_dump($e);
+}

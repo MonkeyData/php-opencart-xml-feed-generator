@@ -64,7 +64,7 @@ abstract class Entity {
         $this->setting();
         $this->setXmlName($xmlName);
         $this->setDataType($dataType);
-        $this->value = $value;
+        $this->setValue($value);
         $this->repairNumbers();
     }
 
@@ -168,5 +168,9 @@ abstract class Entity {
      */
     protected function setXmlName($name) {
         $this->xmlname = $name;
+    }
+    
+    private function setValue($value) {
+        $this->value = strip_tags($value);
     }
 }

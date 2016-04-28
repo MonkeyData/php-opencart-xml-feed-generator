@@ -109,14 +109,13 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         return $timezone->getTimezone();
     }
 
-    public function authenticateHash($hash) {
+    public function getAuthenticationHash() {
         if (version_compare(VERSION, '2.0.1.0', '>=')) {
             $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 0,1;")->fetchObject();
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `group` = 'monkey_data' && `key` = 'hash' LIMIT 0,1;")->fetchObject();
         }
-        $this->config['security']['hash'] = $hash_real->value;
-        return parent::authenticateHash($hash);
+        return $hash_real->value;
     }
 
     /**

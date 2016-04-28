@@ -129,10 +129,27 @@ class ValidatorHelper {
                 break;
             }
             case self::DT_datetime: {
-                if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $this->value))
+                if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $this->value) && !$this->validateMD8601($this->value))
                     throw New MonkeyDataTypeExpectedException("DATETIME format (YYYY-MM-DD hh:mm:ss)");
                 break;
             }
+        }
+    }
+
+    /**
+     * Validates MonkeyData version of ISO-8601 format
+     * example of an valid date: 2016-04-24T03:33:52-0300
+     * @param $date
+     * @return bool
+     */
+    private function validateMD8601($date) {
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})[\-\+](\d{2})(\d{2})$/', $date, $parts) == true) {
+            if (strtotime($date) === false) {
+                return false;
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
