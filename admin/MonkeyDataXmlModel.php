@@ -90,14 +90,25 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             . " AND "
             . " `s`.`key` = 'config_zone_id'; "
         )->fetchAll();
-
-        if (count($result) == 0 || !isset(reset($result)['code'])) {
+          
+        if (count($result) == 0 || !isset($result[0]) || !isset($result[0]['code']) ) {
+            return null;
+        }  
+                    
+        $code = $result[0]['code'];
+         
+        
+        $relativeTimezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
+        if(!$relativeTimezones){
             return null;
         }
-        $code = reset($result)['code'];
-        $relativeTimezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
-
-        return new DateTimeZone(reset($relativeTimezones));
+        $relativeTimezone = null;
+        foreach($relativeTimezones as $timezone){
+            $relativeTimezone = $timezone;
+            break;
+        }
+        return new DateTimeZone($relativeTimezone);
+        
     }
 
     /**
@@ -181,7 +192,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'payment_id' => $result["order_id"],
                 'shipping_id' => $result["order_id"],
                 'customer_id' => md5($result["email"]),
-                'note' => $result["comment"],
+                'note' => substr($result["comment"], 0, 1000),
                 'currency' => $result["currency_code"],
                 'currency_id' => $result["currency_id"]
             );
