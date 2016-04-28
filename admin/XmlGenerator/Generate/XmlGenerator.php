@@ -2,12 +2,14 @@
 
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Generate;
 
+use Exception;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CustomerList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderBean;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderProductsList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderStatusList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\PaymentList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingList;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Config;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\CategoryEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\CategoryIdEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\CategoryLevelEntity;
@@ -49,7 +51,6 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPriceEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPriceWithoutVatEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ProductPurchasePriceEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\RuntimeEntity;
-use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\VersionEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingIdEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingNameEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingPriceEntity;
@@ -57,6 +58,8 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShippingPriceWithoutV
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShopIdEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShopNameEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ShopOrderEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\VersionEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Exceptions\MonkeyDataInvalidModelException;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\InputHelper;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\MDHelper;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model\XmlModel;
@@ -140,10 +143,19 @@ abstract class XmlGenerator {
      */
     private $orderProductBean;
     
+    /**
+     *
+     * @var Config
+     */
     public static $debug = false;
+    
+    private $config = null;
 
-    public function __construct() {
-        $this->model = $this->getModel();
+    public function __construct(Config $config = null) {
+        if($config !== null){
+            $this->setConfig($config);
+        }
+        $this->model = $this->getXmlModel();
         if( InputHelper::handleInput("debug", false) !== false ){
             static::$debug = true;
         }
@@ -153,6 +165,22 @@ abstract class XmlGenerator {
      * @return XmlModel
      */
     abstract function getModel();
+    
+    /**
+     * 
+     * @return XmlModel
+     * @throws MonkeyDataInvalidModelException
+     */
+    protected final function getXmlModel() {
+        $model = $this->getModel();
+        if( !($model instanceof XmlModel) ){
+            throw new MonkeyDataInvalidModelException();
+        }
+        if($this->getConfig() !== null){
+            $model->setConfig($this->getConfig());
+        }
+        return $model;
+    }
 
     public function run() {
         if( !XmlGenerator::isNotDebug() ){
@@ -162,7 +190,7 @@ abstract class XmlGenerator {
         $time_start = MDHelper::microtime_float();
         $this->handleParams();
         $this->authenticate();
-        $this->categoriesList = $this->getModel()->getCategoriesItems();
+        $this->categoriesList = $this->getXmlModel()->getCategoriesItems();
         if( XmlGenerator::isNotDebug() ){
             $this->showXmlHeader();
             
@@ -190,7 +218,7 @@ abstract class XmlGenerator {
     private function generate() {
         //reset XMLmodel and all his variables for each iteration run this function
         $start = $this->model->getStart();
-        $this->model = $this->getModel();
+        $this->model = $this->getXmlModel();
         $this->model->setStart($start);
         
         //fill data from DB to local variables
@@ -323,7 +351,7 @@ abstract class XmlGenerator {
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function handleAuthorization() {
         $this->hash = InputHelper::handleInput("hash",false);
@@ -341,7 +369,7 @@ abstract class XmlGenerator {
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function handleLanguage() {
         $language = InputHelper::handleInput("lang",false);
@@ -351,7 +379,7 @@ abstract class XmlGenerator {
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function handleDates() {
         $this->date_from = InputHelper::handleInput("datum_od",false);
@@ -391,4 +419,22 @@ abstract class XmlGenerator {
     public static function isNotDebug() {
         return !static::$debug;
     }
+    
+    /**
+     * 
+     * @return Config
+     */
+    public function getConfig() {
+        return $this->config;
+    }
+
+    /**
+     * 
+     * @param Config $config
+     */
+    public function setConfig(Config $config) {
+        $this->config = $config;
+    }
+
+
 }

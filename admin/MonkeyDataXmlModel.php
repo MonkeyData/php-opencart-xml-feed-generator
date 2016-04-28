@@ -50,17 +50,83 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @var string
      */
     protected $eshopId = "1";
-    
+
+    /**
+     * @var array
+     */
     protected $customers = array();
 
-    public function authenticateHash($hash) {
+    /**
+     * @var DateTimeZone | null
+     */
+    private $eshopTimezone = null;
+
+    /**
+     * @var DateTimeZone | null
+     */
+    private $serverTimezone = null;
+
+    /**
+     * MonkeyDataXmlModel constructor.
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->eshopTimezone = $this->getEshopTimezone();
+        $this->serverTimezone = $this->getServerTimezone();
+    }
+
+    /**
+     * returns eshop timezone
+     * @return DateTimeZone|null
+     */
+    private function getEshopTimezone() {
+        $result = $this->connection->query(
+            "SELECT "
+            . "  `z`.`code` as code "
+            . " FROM  {$this->getTableName('setting')} as s "
+            . " INNER JOIN {$this->getTableName('zone')} as z "
+            . " ON `s`.`value` = `z`.`zone_id` "
+            . " WHERE `s`.`code` = 'config' "
+            . " AND "
+            . " `s`.`key` = 'config_zone_id'; "
+        )->fetchAll();
+
+        if (count($result) == 0 || !isset(reset($result)['code'])) {
+            return null;
+        }
+        $code = reset($result)['code'];
+        $relativeTimezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
+
+        return new DateTimeZone(reset($relativeTimezones));
+    }
+
+    /**
+     * returns server timezone
+     * @return DateTimeZone|null
+     */
+    private function getServerTimezone() {
+        $timezone = new DateTime();
+        return $timezone->getTimezone();
+    }
+
+    public function getAuthenticationHash() {
         if (version_compare(VERSION, '2.0.1.0', '>=')) {
             $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `code` = 'monkey_data_tmp' && `key` = 'monkey_data_hash' LIMIT 0,1;")->fetchObject();
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $hash_real = $this->connection->query("SELECT `value` FROM {$this->getTableName('setting')} WHERE `group` = 'monkey_data' && `key` = 'hash' LIMIT 0,1;")->fetchObject();
         }
-        $this->config['security']['hash'] = $hash_real->value;
-        return parent::authenticateHash($hash);
+        return $hash_real->value;
+    }
+
+    /**
+     * Synchronize given date (as default server timezone) with eshop timezone
+     * @param $date
+     * @return DateTime
+     */
+    private function syncTimeWithEshop($date) {
+        $time = new DateTime($date, $this->serverTimezone);
+        $time->setTimezone($this->eshopTimezone);
+        return $time;
     }
 
     /**
@@ -76,6 +142,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return array
      */
     public function getOrdersItems($date_from, $date_to, $start, $step) {
+        $date_from = $this->syncTimeWithEshop($date_from . ' 00:00:00')->format("Y-m-d H:i:s");
+        $date_to = $this->syncTimeWithEshop($date_to . ' 23:59:59')->format("Y-m-d H:i:s");
         $results = $this->connection->query(
                         "SELECT "
                         . " `o`.order_id, store_id, store_name, "
@@ -89,17 +157,14 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                         . " FROM {$this->getTableName('order')} as o "
                         . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
                         . " `o`.`order_id` = `ot`.`order_id` "
-                        . " WHERE ((`o`.`date_added` >= '{$date_from} 00:00:00' "
-                        . " AND `o`.`date_added` <= '{$date_to} 23:59:59')"
-                        . " OR (`o`.`date_modified` >= '{$date_from} 00:00:00'"
-                        . " AND `o`.`date_modified` <= '{$date_to} 23:59:59')) "
+                        . " WHERE ((`o`.`date_added` >= '{$date_from}' "
+                        . " AND `o`.`date_added` <= '{$date_to}' ) "
+                        . " OR (`o`.`date_modified` >= '{$date_from}' "
+                        . " AND `o`.`date_modified` <= '{$date_to}' )) "
                         . " AND `ot`.`code` = 'sub_total' "
                         . " AND `o`.`order_status_id` > 0 "
                         . " LIMIT {$start}, {$step}"
                 )->fetchAll();
-
-
-
         $output = array();
         $customers = array();
 
@@ -108,8 +173,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'id' => $result["order_id"],
                 'shop_name' => $result["store_name"],
                 'shop_id' => $result["store_id"],
-                'date_created' => $result["date_added"],
-                'date_updated' => $result["date_modified"],
+                'date_created' => $this->syncTimeWithEshop($result["date_added"])->format(DateTime::ISO8601),
+                'date_updated' => $this->syncTimeWithEshop($result["date_modified"])->format(DateTime::ISO8601),
                 'price' => $result["total"],
                 'price_without_vat' => $result["PriceWithoutVat"],
                 'order_status_id' => $result["order_status_id"],
@@ -404,3 +469,4 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     
 
 }
+

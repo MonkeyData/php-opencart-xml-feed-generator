@@ -20,10 +20,6 @@ interface XmlModelInterface {
 
     public function __construct();
 
-    /**
-     * @return array
-     */
-    public function getCategoriesItems();
 
     /**
      * @param array $categoriesList
