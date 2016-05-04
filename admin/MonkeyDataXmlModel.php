@@ -71,8 +71,12 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     public function __construct() {
         parent::__construct();
-        $this->eshopTimezone = $this->getEshopTimezone();
         $this->serverTimezone = $this->getServerTimezone();
+        $eshopTimezone = $this->getEshopTimezone();
+        if($eshopTimezone === null){
+            $eshopTimezone = $this->serverTimezone;
+        }
+        $this->eshopTimezone = $eshopTimezone;
     }
 
     /**
@@ -80,22 +84,31 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return DateTimeZone|null
      */
     private function getEshopTimezone() {
+        
+        if (version_compare(VERSION, '2.0.1.0', '>=')) {
+            $keyName = 'code';
+        } elseif (version_compare(VERSION, '1.5', '>=')) {
+            $keyName = 'group';
+        }
+        
+        
         $result = $this->connection->query(
             "SELECT "
             . "  `z`.`code` as code "
             . " FROM  {$this->getTableName('setting')} as s "
             . " INNER JOIN {$this->getTableName('zone')} as z "
             . " ON `s`.`value` = `z`.`zone_id` "
-            . " WHERE `s`.`code` = 'config' "
+            . " WHERE `s`.`{$keyName}` = 'config' "
             . " AND "
             . " `s`.`key` = 'config_zone_id'; "
         )->fetchAll();
           
-        if (count($result) == 0 || !isset($result[0]) || !isset($result[0]['code']) ) {
+        
+        if (count($result) == 0 || !isset($result[0]) || !isset($result[0][$keyName]) ) {
             return null;
         }  
                     
-        $code = $result[0]['code'];
+        $code = $result[0][$keyName];
          
         
         $relativeTimezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
@@ -106,6 +119,9 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         foreach($relativeTimezones as $timezone){
             $relativeTimezone = $timezone;
             break;
+        }
+        if($relativeTimezone === null){
+            return null;
         }
         return new DateTimeZone($relativeTimezone);
         
@@ -256,7 +272,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
             $output[] = array(
                 'id' => $result["order_id"],
-                'payment_name' => $result["payment_method"],
+                'payment_name' => substr($result["payment_method"], 0, 100),
                 'payment_price' => $payment,
                 'payment_price_without_vat' => $payment
             );
@@ -299,7 +315,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         foreach ($results as $result) {
             $output[] = array(
                 'id' => $result["order_id"],
-                'shipping_name' => $result["shipping_method"],
+                'shipping_name' => substr($result["shipping_method"], 0, 100),
                 'shipping_price' => $result["value"],
                 'shipping_price_without_vat' => $result["value"]
             );
