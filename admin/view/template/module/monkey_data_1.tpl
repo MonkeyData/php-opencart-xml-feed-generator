@@ -21,6 +21,7 @@
             }
 
             .container-welcome {
+                min-width: 800px;
                 text-align: center;
             }
 
@@ -91,26 +92,76 @@
                 height: 3px;
                 max-width: 100%;
             }
+
+            .MonkeyData-Errors {
+                padding-top: 20px;
+                font-family: Roboto, sans-serif;
+                text-decoration: none !important;
+                text-shadow: 0 2px 3px rgba(1,1,1,0.2);
+                font-size: 12px;
+                font-weight: 900;
+                display: table;
+                margin: 0 auto;
+            }
+
+            .MonkeyData-Error {
+                margin-top: 10px;
+                color: #f8ebec;
+                background-color: #c7292b;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                border-radius: 5px;
+            }
+
+            .MonkeyData-Error-Mark {
+                font-size: 14px;
+                margin-left: 10px;
+                float: left;
+            }
+
+            .MonkeyData-Error-Message {
+                padding: 15px;
+            }
+            
+            a, a:visited {
+				text-decoration: none;
+				cursor: pointer;
+			}
         </style>
 
         <div class="container-all-welcome">
             <div class="container-welcome">
 
-                <div class="MonkeyData-Configuration-border">
-                </div>
+                <div class="MonkeyData-Configuration-border"></div>
 
-                <div class="welcome-messages">
-                    <div class="welcome-message">
-                        COPY URL LINK AND PASTE INTO YOUR MONKEYDATA APP
+                <?php if (count($errors) > 0) : ?>
+
+                    <div class="MonkeyData-Errors">
+                        <?php
+                        foreach ($errors as $error) {
+                            echo "<div class=\"MonkeyData-Error\">";
+                                echo "<span class=\"MonkeyData-Error-Mark\"> &#x2716; </span>";
+                                echo "<span class=\"MonkeyData-Error-Message\">". $error . "</span>";
+                            echo "</div>";
+                        }
+                        ?>
                     </div>
-                </div>
-                <div class="MonkeyData-Configuration-Url-Box">
-                    <input title="Url" type="text" id="MonkeyData-Configuration-URL"  size="<?php echo $urlLength; ?>" readonly value="<?php echo $url; ?>">
-                    <button data-clipboard-target="#MonkeyData-Configuration-URL" id="MonkeyData-Configuration-Copy-Btn" onclick="copyText()">
-                        COPY
-                    </button>
-                </div>
 
+                <?php else : ?>
+
+                    <div class="welcome-messages">
+                        <div class="welcome-message">
+                            COPY URL LINK AND PASTE INTO YOUR MONKEYDATA APP
+                        </div>
+                    </div>
+                    <div class="MonkeyData-Configuration-Url-Box">
+                        <input title="Url" type="text" id="MonkeyData-Configuration-URL"  size="<?php echo $urlLength; ?>" readonly value="<?php echo $url; ?>">
+                        <button data-clipboard-target="#MonkeyData-Configuration-URL" id="MonkeyData-Configuration-Copy-Btn">
+                            COPY
+                        </button>
+                    </div>
+
+                <?php endif; ?>
                 <div class="MonkeyData-Configuration-border">
                 </div>
 
@@ -128,3 +179,4 @@
     new Clipboard('#MonkeyData-Configuration-Copy-Btn');
 </script>
 <?php echo $footer; ?>
+
