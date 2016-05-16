@@ -111,8 +111,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         $code = $result[0][$keyName];
          
         
-        $relativeTimezones = DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
-        if(!$relativeTimezones){
+        $relativeTimezones = @DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $code);
+        if(!$relativeTimezones || empty($relativeTimezones)){
             return null;
         }
         $relativeTimezone = null;
