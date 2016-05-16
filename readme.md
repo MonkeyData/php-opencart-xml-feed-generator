@@ -16,5 +16,6 @@ Note: In any case, do NOT delete this folder, only add new files!!!
 
 **For the proper functioning of the expansion is necessary:**
 
-1. online store running on server with PHP 5.3 or higher
-2. PDO module installed in PHP
+1. Online store running on server with <b>PHP 5.3 or higher </b>(<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#1" target="">read me</a>)
+2. <b>PDO module</b> for PHP installed and enabled (<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#2" target="">read me</a>)
+3. <b>Default timezone </b>must be set&nbsp;(<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#3" target="">read me</a>)
