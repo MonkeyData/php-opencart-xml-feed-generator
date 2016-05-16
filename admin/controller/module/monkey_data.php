@@ -68,6 +68,7 @@ class ControllerModulemonkeydata extends Controller {
         $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
         $data['url'] = $url;
         $data['urlLength'] = strlen($url);
+        $data['errors'] = $this->verifyCompatibility();
 
 
         $data['hash'] = $hash->row['value'];
@@ -109,9 +110,35 @@ class ControllerModulemonkeydata extends Controller {
             $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
             $this->data['url'] = $url;
             $this->data['urlLength'] = strlen($url);
+            $this->data['errors'] = $this->verifyCompatibility();
 
             $this->data['hash'] = $hash->row['value'];
             $this->response->setOutput($this->render());
+    }
+
+
+    private function verifyCompatibility() {
+        $errors = array();
+
+        $readme = function ($anchor = '') {
+            if (!empty($anchor)) {$anchor = "#" . $anchor;}
+            return "<a href=\"https://developers.monkeydata.com/sources/opencart/opencart-module-requirements".
+            $anchor . "\" target="_blank"> read me </a>";
+        };
+
+        if (version_compare(phpversion(), '5.3', '<')) {
+            $errors[] = "Online store running on server with PHP 5.3 or higher (" . $readme(1) .")";
+        }
+        if (!class_exists('PDO')) {
+            $errors[] = "PDO module for PHP installed and enabled (" . $readme(2) .")";
+        }
+        try {
+            date_default_timezone_get();
+        } catch (Exception $e) {
+            $errors[] = "Default timezone must be set (" . $readme(3) .")";
+        }
+
+        return $errors;
     }
 
     private function validate() {

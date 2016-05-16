@@ -1,5 +1,11 @@
 <?php
 
+error_reporting(0);
+
+if (!is_null($_GET['debug'])) {
+	error_reporting(E_ALL);
+}
+
 /*
  * custom loader
  */
