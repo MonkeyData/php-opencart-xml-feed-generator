@@ -123,7 +123,7 @@ class ControllerModulemonkeydata extends Controller {
         $readme = function ($anchor = '') {
             if (!empty($anchor)) {$anchor = "#" . $anchor;}
             return "<a href=\"https://developers.monkeydata.com/sources/opencart/opencart-module-requirements".
-            $anchor . "\" target="_blank"> read me </a>";
+            $anchor . "\" target=\"_blank\" > read me </a>";
         };
 
         if (version_compare(phpversion(), '5.3', '<')) {
