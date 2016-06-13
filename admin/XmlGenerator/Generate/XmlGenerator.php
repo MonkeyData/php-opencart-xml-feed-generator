@@ -244,7 +244,9 @@ abstract class XmlGenerator {
         if (count($orders) < $this->model->getStep()) {
             return;
         }
-        if(XmlGenerator::isNotDebug())$this->generate();
+        if(XmlGenerator::isNotDebug()){
+            $this->generate();
+        }
     }
     
     /**

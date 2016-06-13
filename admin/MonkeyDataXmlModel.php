@@ -133,7 +133,11 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      */
     private function getServerTimezone() {
         $timezone = new DateTime();
-        return $timezone->getTimezone();
+        try{
+            return $timezone->getTimezone();
+        }  catch (Exception $e){
+            return date_default_timezone_get();
+        }
     }
 
     public function getAuthenticationHash() {
