@@ -1,18 +1,17 @@
 <?php
-
 error_reporting(0);
 
 if (!is_null($_GET['debug'])) {
     error_reporting(E_ALL);
     try {
         if (function_exists('phpversion')) {
-            echo "Current PHP version: " . phpversion() . PHP_EOL;
+            echo "Current PHP version: " . phpversion() . PHP_EOL. '<br>';
         } else {
             echo "Function phpversion does not exists! \n";
         }
 
         if (defined('PHP_VERSION')) {
-            echo 'Current PHP version: ' . PHP_VERSION . PHP_EOL;
+            echo 'Current PHP version: ' . PHP_VERSION . PHP_EOL. '<br>';
         } else {
             echo "PHP_VERSION is not defined! \n";
         }
