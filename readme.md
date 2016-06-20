@@ -2,7 +2,7 @@
 
 License: MIT
 
-Version: 1.0.0
+Version: 1.0.6
 
 ## Installation Instructions
 1. Download universal module for OpenCart (https://github.com/MonkeyData/php-opencart-xml-feed-generator/archive/master.zip). It is compatible with all released OpenCart versions
