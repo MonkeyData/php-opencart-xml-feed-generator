@@ -19,3 +19,5 @@ Note: In any case, do NOT delete this folder, only add new files!!!
 1. Online store running on server with <b>PHP 5.3 or higher </b>(<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#1" target="_blank">read me</a>)
 2. <b>PDO module</b> for PHP installed and enabled (<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#2" target="_blank">read me</a>)
 3. <b>Default timezone </b>must be set&nbsp;(<a href="https://developers.monkeydata.com/sources/opencart/opencart-module-requirements#3" target="_blank">read me</a>)
+
+<i>Note: If you had modified Opencart core files, please first contact us via email: <a href="mailto:support@monkeydata.com" target="">support@monkeydata.com</a>.</i>

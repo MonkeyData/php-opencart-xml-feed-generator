@@ -1,5 +1,6 @@
 <?php
 
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Generate\XmlGenerator;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model\CurrentXmlModelInterface;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model\XmlModel;
 
@@ -72,6 +73,9 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     public function __construct() {
         parent::__construct();
         $this->serverTimezone = $this->getServerTimezone();
+        if( !XmlGenerator::isNotDebug() ){
+            error_reporting(E_ALL);
+        }
         $eshopTimezone = $this->getEshopTimezone();
         if($eshopTimezone === null){
             $eshopTimezone = $this->serverTimezone;
@@ -131,12 +135,18 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * returns server timezone
      * @return DateTimeZone|null
      */
-    private function getServerTimezone() {
-        $timezone = new DateTime();
+       private function getServerTimezone() {
         try{
+            $timezone = new DateTime();
             return $timezone->getTimezone();
         }  catch (Exception $e){
-            return date_default_timezone_get();
+            error_reporting(0);
+            try{
+              $timezone = date_default_timezone_get();
+              return new DateTimeZone($timezone);
+            }catch(Exception $e){
+                return new DateTimeZone($timezone);
+            }
         }
     }
 
@@ -228,7 +238,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'customer_country' => $result["payment_country"],
                 'customer_firstname' => $result["payment_firstname"],
                 'customer_registration' => $registration,
-                'customer_zip_code' => $result["payment_postcode"],
+                'customer_zip_code' => substr($result["payment_postcode"], 0, 10),
                 'customer_vat_status' => 1,
                 'customer_type' => $customerType
             );
