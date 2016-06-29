@@ -273,7 +273,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     public function getPaymentsItems($paymentIds) {
         $results = $this->connection->query(
                         "SELECT "
-                        . "`o`.`order_id`, payment_method "
+                        . "`o`.`order_id`, payment_method, `o`.`currency_value` "
                         . "FROM {$this->getTableName('order')} as `o` "
                         . "WHERE `o`.`order_id` "
                         . "IN ('" . implode("', '", $paymentIds) . "') "
@@ -295,8 +295,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             $output[] = array(
                 'id' => $result["order_id"],
                 'payment_name' => substr($result["payment_method"], 0, 100),
-                'payment_price' => $payment,
-                'payment_price_without_vat' => $payment
+                'payment_price' => $payment * $result['currency_value'],
+                'payment_price_without_vat' => $payment * $result['currency_value']
             );
         }
 
@@ -323,7 +323,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
         $results = $this->connection->query(
                         "SELECT "
-                        . "`o`.`order_id`, shipping_method, value "
+                        . "`o`.`order_id`, shipping_method, value, `o`.`currency_value` "
                         . "FROM {$this->getTableName('order')} as `o` "
                         . "INNER JOIN {$this->getTableName('order_total')} as `ot` ON "
                         . "`o`.`order_id` = `ot`.`order_id` "
@@ -338,8 +338,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             $output[] = array(
                 'id' => $result["order_id"],
                 'shipping_name' => substr($result["shipping_method"], 0, 100),
-                'shipping_price' => $result["value"],
-                'shipping_price_without_vat' => $result["value"]
+                'shipping_price' => $result["value"] * $result['currency_value'],
+                'shipping_price_without_vat' => $result["value"] * $result['currency_value']
             );
         }
 
