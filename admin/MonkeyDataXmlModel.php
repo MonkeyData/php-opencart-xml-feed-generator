@@ -55,6 +55,11 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     /**
      * @var array
      */
+    private $ordersCurrencyValue = array();
+
+    /**
+     * @var array
+     */
     protected $customers = array();
 
     /**
@@ -185,29 +190,16 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
     public function getOrdersItems($date_from, $date_to, $start, $step) {
         $date_from = $this->syncTimeWithEshop($date_from . ' 00:00:00')->format("Y-m-d H:i:s");
         $date_to = $this->syncTimeWithEshop($date_to . ' 23:59:59')->format("Y-m-d H:i:s");
-        $results = $this->connection->query(
-                        "SELECT "
-                        . " `o`.order_id, store_id, store_name, "
-                        . " date_added, date_modified, order_status_id, "
-                        . " `ot`.`value` as PriceWithoutVat, "
-                        . " comment, `o`.`total`, "
-                        . " currency_id, currency_code,"
-                        . " "
-                        . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
-                        . " "
-                        . " FROM {$this->getTableName('order')} as o "
-                        . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
-                        . " `o`.`order_id` = `ot`.`order_id` "
-                        . " WHERE ((`o`.`date_added` >= '{$date_from}' "
-                        . " AND `o`.`date_added` <= '{$date_to}' ) "
-                        . " OR (`o`.`date_modified` >= '{$date_from}' "
-                        . " AND `o`.`date_modified` <= '{$date_to}' )) "
-                        . " AND `ot`.`code` = 'sub_total' "
-                        . " AND `o`.`order_status_id` > 0 "
-                        . " LIMIT {$start}, {$step}"
-                )->fetchAll();
+
+        $results = array();
         $output = array();
         $customers = array();
+
+        if (version_compare(VERSION, '2.0.1.0', '>=')) {
+            $results = $this->orders2Query($date_from, $date_to, $start, $step);
+        } elseif (version_compare(VERSION, '1.5', '>=')) {
+            $results = $this->orders15Query($date_from, $date_to, $start, $step);
+        }
 
         foreach ($results as $result) {
             $output[] = array(
@@ -216,8 +208,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'shop_id' => $result["store_id"],
                 'date_created' => $this->syncTimeWithEshop($result["date_added"])->format(DateTime::ISO8601),
                 'date_updated' => $this->syncTimeWithEshop($result["date_modified"])->format(DateTime::ISO8601),
-                'price' => $result["total"],
-                'price_without_vat' => $result["PriceWithoutVat"],
+                'price' => $result["total"] * $result['currency_value'],
+                'price_without_vat' => $result["PriceWithoutVat"] * $result['currency_value'],
                 'order_status_id' => $result["order_status_id"],
                 'payment_id' => $result["order_id"],
                 'shipping_id' => $result["order_id"],
@@ -226,7 +218,8 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'currency' => $result["currency_code"],
                 'currency_id' => $result["currency_id"]
             );
-            
+
+            $this->ordersCurrencyValue[$result['order_id']] = $result['currency_value'];
     
             $registration = $result["customer_id"] == 0 ? 0 : 1;
             $customerType = $result["payment_company"] == null ? 0 : 1;
@@ -245,6 +238,70 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         }
         $this->customers = $customers;
         return $output;
+    }
+
+    /**
+     * @param $date_from
+     * @param $date_to
+     * @param $start
+     * @param $step
+     * @return array
+     */
+    private function orders15Query($date_from, $date_to, $start, $step) {
+        return $this->connection->query(
+            "SELECT "
+            . " `o`.order_id, store_id, store_name, "
+            . " `o`.`date_added`, `o`.`date_modified`, order_status_id, "
+            . " `ot`.`value` as PriceWithoutVat, "
+            . " comment, `o`.`total`, "
+            . " `o`.`currency_id`, `o`.`currency_code`, `c`.`value` AS currency_value, "
+            . " "
+            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
+            . " "
+            . " FROM {$this->getTableName('order')} as o "
+            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
+            . " `o`.`order_id` = `ot`.`order_id` "
+            . " INNER JOIN {$this->getTableName('currency')} as c ON "
+            . " `c`.`currency_id` = `o`.`currency_id` "
+            . " WHERE ((`o`.`date_added` >= '{$date_from}' "
+            . " AND `o`.`date_added` <= '{$date_to}' ) "
+            . " OR (`o`.`date_modified` >= '{$date_from}' "
+            . " AND `o`.`date_modified` <= '{$date_to}' )) "
+            . " AND `ot`.`code` = 'sub_total' "
+            . " AND `o`.`order_status_id` > 0 "
+            . " LIMIT {$start}, {$step}"
+        )->fetchAll();
+    }
+
+    /**
+     * @param $date_from
+     * @param $date_to
+     * @param $start
+     * @param $step
+     * @return array
+     */
+    private function orders2Query($date_from, $date_to, $start, $step) {
+        return $results = $this->connection->query(
+            "SELECT "
+            . " `o`.order_id, store_id, store_name, "
+            . " `o`.`date_added`, `o`.`date_modified`, order_status_id, "
+            . " `ot`.`value` as PriceWithoutVat, "
+            . " comment, `o`.`total`, "
+            . " currency_id, currency_code, `o`.`currency_value`,"
+            . " "
+            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
+            . " "
+            . " FROM {$this->getTableName('order')} as o "
+            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
+            . " `o`.`order_id` = `ot`.`order_id` "
+            . " WHERE ((`o`.`date_added` >= '{$date_from}' "
+            . " AND `o`.`date_added` <= '{$date_to}' ) "
+            . " OR (`o`.`date_modified` >= '{$date_from}' "
+            . " AND `o`.`date_modified` <= '{$date_to}' )) "
+            . " AND `ot`.`code` = 'sub_total' "
+            . " AND `o`.`order_status_id` > 0 "
+            . " LIMIT {$start}, {$step}"
+        )->fetchAll();
     }
 
     /**
@@ -373,15 +430,19 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
         foreach ($results as $result) {
             $tax = (empty($result["tax"])) ? 0 : $result["tax"];
+            $currencyValue = 1;
+            if (!empty($this->ordersCurrencyValue[$result['order_id']])) {
+                $currencyValue = $this->ordersCurrencyValue[$result['order_id']];
+            }
 
             $output[] = array(
                 'id' => $result["product_id"],
                 'order_id' => $result["order_id"],
                 'product_name' => $result["name"],
                 'product_count' => $result["quantity"],
-                'product_price' => $result["price"] + $tax,
-                'product_price_without_vat' => $result["price"],
-                'product_purchase_price' => $result["price"],
+                'product_price' => ($result["price"] + $tax) * $currencyValue,
+                'product_price_without_vat' => $result["price"] * $currencyValue,
+                'product_purchase_price' =>  $result["price"] * $currencyValue,
                 'category_id' => $result["category_id"]
             );
         }
