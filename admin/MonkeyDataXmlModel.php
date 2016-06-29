@@ -191,15 +191,30 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         $date_from = $this->syncTimeWithEshop($date_from . ' 00:00:00')->format("Y-m-d H:i:s");
         $date_to = $this->syncTimeWithEshop($date_to . ' 23:59:59')->format("Y-m-d H:i:s");
 
-        $results = array();
         $output = array();
         $customers = array();
 
-        if (version_compare(VERSION, '2.0.1.0', '>=')) {
-            $results = $this->orders2Query($date_from, $date_to, $start, $step);
-        } elseif (version_compare(VERSION, '1.5', '>=')) {
-            $results = $this->orders15Query($date_from, $date_to, $start, $step);
-        }
+        $results = $this->connection->query(
+            "SELECT "
+            . " `o`.order_id, store_id, store_name, "
+            . " date_added, date_modified, order_status_id, "
+            . " `ot`.`value` as PriceWithoutVat, "
+            . " comment, `o`.`total`, "
+            . " currency_id, currency_code, `o`.`currency_value`, "
+            . " "
+            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
+            . " "
+            . " FROM {$this->getTableName('order')} as o "
+            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
+            . " `o`.`order_id` = `ot`.`order_id` "
+            . " WHERE ((`o`.`date_added` >= '{$date_from}' "
+            . " AND `o`.`date_added` <= '{$date_to}' ) "
+            . " OR (`o`.`date_modified` >= '{$date_from}' "
+            . " AND `o`.`date_modified` <= '{$date_to}' )) "
+            . " AND `ot`.`code` = 'sub_total' "
+            . " AND `o`.`order_status_id` > 0 "
+            . " LIMIT {$start}, {$step}"
+        )->fetchAll();
 
         foreach ($results as $result) {
             $output[] = array(
@@ -238,70 +253,6 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         }
         $this->customers = $customers;
         return $output;
-    }
-
-    /**
-     * @param $date_from
-     * @param $date_to
-     * @param $start
-     * @param $step
-     * @return array
-     */
-    private function orders15Query($date_from, $date_to, $start, $step) {
-        return $this->connection->query(
-            "SELECT "
-            . " `o`.order_id, store_id, store_name, "
-            . " `o`.`date_added`, `o`.`date_modified`, order_status_id, "
-            . " `ot`.`value` as PriceWithoutVat, "
-            . " comment, `o`.`total`, "
-            . " `o`.`currency_id`, `o`.`currency_code`, `c`.`value` AS currency_value, "
-            . " "
-            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
-            . " "
-            . " FROM {$this->getTableName('order')} as o "
-            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
-            . " `o`.`order_id` = `ot`.`order_id` "
-            . " INNER JOIN {$this->getTableName('currency')} as c ON "
-            . " `c`.`currency_id` = `o`.`currency_id` "
-            . " WHERE ((`o`.`date_added` >= '{$date_from}' "
-            . " AND `o`.`date_added` <= '{$date_to}' ) "
-            . " OR (`o`.`date_modified` >= '{$date_from}' "
-            . " AND `o`.`date_modified` <= '{$date_to}' )) "
-            . " AND `ot`.`code` = 'sub_total' "
-            . " AND `o`.`order_status_id` > 0 "
-            . " LIMIT {$start}, {$step}"
-        )->fetchAll();
-    }
-
-    /**
-     * @param $date_from
-     * @param $date_to
-     * @param $start
-     * @param $step
-     * @return array
-     */
-    private function orders2Query($date_from, $date_to, $start, $step) {
-        return $results = $this->connection->query(
-            "SELECT "
-            . " `o`.order_id, store_id, store_name, "
-            . " `o`.`date_added`, `o`.`date_modified`, order_status_id, "
-            . " `ot`.`value` as PriceWithoutVat, "
-            . " comment, `o`.`total`, "
-            . " currency_id, currency_code, `o`.`currency_value`,"
-            . " "
-            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
-            . " "
-            . " FROM {$this->getTableName('order')} as o "
-            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
-            . " `o`.`order_id` = `ot`.`order_id` "
-            . " WHERE ((`o`.`date_added` >= '{$date_from}' "
-            . " AND `o`.`date_added` <= '{$date_to}' ) "
-            . " OR (`o`.`date_modified` >= '{$date_from}' "
-            . " AND `o`.`date_modified` <= '{$date_to}' )) "
-            . " AND `ot`.`code` = 'sub_total' "
-            . " AND `o`.`order_status_id` > 0 "
-            . " LIMIT {$start}, {$step}"
-        )->fetchAll();
     }
 
     /**
