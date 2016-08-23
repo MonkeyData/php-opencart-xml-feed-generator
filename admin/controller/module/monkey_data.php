@@ -9,6 +9,8 @@
 
 class ControllerModulemonkeydata extends Controller {
 
+    const MD_CONNECT_URL = 'https://app.monkeydata.com/eshops/opencart/callback-with-shops';
+
     private $error = array();
 
     public function index() {
@@ -30,15 +32,15 @@ class ControllerModulemonkeydata extends Controller {
         $data = array();
         $data['tr'] = array();
         $data['tr']['module_name'] = $this->language->get('heading_title');
-        
-        
+
+
         if (version_compare(VERSION, '2.0.1.0', '>=')) {
             $this->v2_index($hash, $data);
         } elseif (version_compare(VERSION, '1.5', '>=')) {
             $this->v1_index($hash, $data);
         }
     }
-    
+
 
     private function v2_index($hash, $data = array()) {
         $this->template = 'module/monkey_data_2.tpl';
@@ -65,58 +67,52 @@ class ControllerModulemonkeydata extends Controller {
 
         $data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
 
-        $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
-        $data['url'] = $url;
-        $data['urlLength'] = strlen($url);
+        $data['url'] = $this->composeUrl($hash->row['value']);
         $data['errors'] = $this->verifyCompatibility();
 
-
-        $data['hash'] = $hash->row['value'];
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['header'] = $this->load->controller('common/header');
         $data['footer'] = $this->load->controller('common/footer');
         $this->response->setOutput($this->load->view($this->template, $data));
     }
-    
+
     private function v1_index($hash, $data = array()) {
         $this->template = 'module/monkey_data_1.tpl';
-            $this->data['breadcrumbs'] = array();
+        $this->data['breadcrumbs'] = array();
 
-            $this->data['breadcrumbs'][] = array(
-                'text' => $this->language->get('text_home'),
-                'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => false
-            );
+        $this->data['breadcrumbs'][] = array(
+            'text' => $this->language->get('text_home'),
+            'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => false
+        );
 
-            $this->data['breadcrumbs'][] = array(
-                'text' => $this->language->get('Moduly'),
-                'href' => $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => ' :: '
-            );
+        $this->data['breadcrumbs'][] = array(
+            'text' => $this->language->get('Moduly'),
+            'href' => $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => ' :: '
+        );
 
-            $this->data['breadcrumbs'][] = array(
-                'text' => $this->language->get('heading_title'),
-                'href' => $this->url->link('module/monkey_data', 'token=' . $this->session->data['token'], 'SSL'),
-                'separator' => ' :: '
-            );
+        $this->data['breadcrumbs'][] = array(
+            'text' => $this->language->get('heading_title'),
+            'href' => $this->url->link('module/monkey_data', 'token=' . $this->session->data['token'], 'SSL'),
+            'separator' => ' :: '
+        );
 
+        $this->data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
+        $this->children = array(
+            'common/header',
+            'common/footer',
+        );
 
-            $this->data['cancel'] = $this->url->link('extension/module', 'token=' . $this->session->data['token'], 'SSL');
-            $this->children = array(
-                'common/header',
-                'common/footer',
-            );
+        $this->data['url'] = $this->composeUrl($hash->row['value']);
+        $this->data['errors'] = $this->verifyCompatibility();
 
-            $url = HTTP_SERVER . 'monkey_data_cron.php?hash=' . $hash->row['value'];
-            $this->data['url'] = $url;
-            $this->data['urlLength'] = strlen($url);
-            $this->data['errors'] = $this->verifyCompatibility();
-
-            $this->data['hash'] = $hash->row['value'];
-            $this->response->setOutput($this->render());
+        $this->response->setOutput($this->render());
     }
 
-
+    /**
+     * @return array
+     */
     private function verifyCompatibility() {
         $errors = array();
 
@@ -137,8 +133,26 @@ class ControllerModulemonkeydata extends Controller {
         } catch (Exception $e) {
             $errors[] = "Default timezone must be set (" . $readme(3) .")";
         }
-
         return $errors;
+    }
+
+    /**
+     * @param $hash
+     * @return string
+     */
+    private function composeUrl($hash) {
+        $url = static::MD_CONNECT_URL;
+        $params = array (
+            'url' => HTTP_SERVER . 'monkey_data_cron.php',
+            'hash' => $hash,
+            'shops' => array(),
+            'firstname' => '',
+            'lastname' => '',
+            'email' => '',
+            'language' => ''
+        );
+
+        return $url . '?' . http_build_query($params);
     }
 
     private function validate() {
