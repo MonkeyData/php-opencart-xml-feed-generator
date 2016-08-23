@@ -142,14 +142,15 @@ class ControllerModulemonkeydata extends Controller {
      */
     private function composeUrl($hash) {
         $url = static::MD_CONNECT_URL;
+        $name = explode(' ', $this->config->get('config_owner'), 2);
         $params = array (
             'url' => HTTP_SERVER . 'monkey_data_cron.php',
             'hash' => $hash,
             'shops' => array(),
-            'firstname' => '',
-            'lastname' => '',
-            'email' => '',
-            'language' => ''
+            'firstname' => empty($name[0]) ? '' : $name[0],
+            'lastname' => empty($name[1]) ? '' : $name[1],
+            'email' => $this->config->get('config_email'),
+            'language' => $this->config->get('config_language')
         );
 
         return $url . '?' . http_build_query($params);
