@@ -3,7 +3,7 @@
     <div class="breadcrumb">
         <?php foreach ($breadcrumbs as $breadcrumb) { ?>
         <?php echo $breadcrumb['separator']; ?><a
-            href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>
+                href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>
         <?php } ?>
     </div>
     <?php if (isset($error_warning)) { ?>
@@ -146,7 +146,7 @@
             <?php else : ?>
             <div class="MonkeyData-Content">
                 <div class="MonkeyData-Text"> I want to register to MonkeyData app <br/> and connect my online store </div>
-                <a href="<?php $url ?>" class="MonkeyData-Link MonkeyData-Connect-Link" target="_blank">
+                <a href="<?php echo $url ?>" class="MonkeyData-Link MonkeyData-Connect-Link" target="_blank">
                     REGISTER TO APPLICATION
                 </a>
                 <div class="MonkeyData-Text"> I have already MonkeyData account <br/> and I just want to go to dashboards </div>
