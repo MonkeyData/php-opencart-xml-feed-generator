@@ -20,167 +20,160 @@
         <?php } ?>
         <div class="panel panel-default">
 
-            <style>
-                @import url(https://fonts.googleapis.com/css?family=Dosis);
-                @import url(https://fonts.googleapis.com/css?family=Roboto);
+        <style>
+            @import url(https://fonts.googleapis.com/css?family=Dosis);
+            @import url(https://fonts.googleapis.com/css?family=Roboto);
 
-                .container-all-welcome {
-                    margin: auto;
-                    display: table;
+            #MonkeyData-Configuration-Page {
+                text-align: center;
+                font-family: Roboto, sans-serif;
+                margin: 0 auto;
+                display: table;
+                width: 70%;
+            }
 
-                }
+            .MonkeyData-Headline-Text {
+                font-family: Dosis, sans-serif;
+                color: #132a42!important;
+                font-size: 29px;
+                font-weight: 900;
+                text-transform: uppercase;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
 
-                .container-welcome {
-                    min-width: 800px;
-                    text-align: center;
-                }
+            .MonkeyData-Errors {
+                padding-top: 20px;
+                padding-bottom: 20px;
+                font-family: Roboto, sans-serif;
+                text-decoration: none !important;
+                text-shadow: 0 2px 3px rgba(1,1,1,0.2);
+                font-size: 12px;
+                font-weight: 900;
+                display: table;
+                margin: 0 auto;
+            }
 
-                .welcome-messages {
-                    padding-top: 50px;
-                    padding-bottom: 10px;
-                }
+            .MonkeyData-Error {
+                margin-top: 10px;
+                color: #f8ebec;
+                background-color: #c7292b;
+                padding: 5px 10px 5px 10px;
+                border-radius: 5px;
+            }
 
-                .welcome-message {
-                    color: #132a42;
-                    font-family: Dosis, sans-serif;
-                    font-size: 29px;
-                    font-weight: 900;
-                    text-transform: uppercase;
-                }
+            .MonkeyData-Error-Mark {
+                font-size: 14px;
+                margin-right: 10px;
+                float: left;
+            }
 
-                .MonkeyData-Configuration-Url-Box {
-                    padding-top: 20px;
-                    padding-bottom: 20px;
-                    font-size: 15px;
-                    line-height: 35px;
-                }
+            .MonkeyData-Error-Message {
+                padding: 15px;
+            }
 
-                #MonkeyData-Configuration-URL {
-                    border: 1px solid #bedef5;
-                    text-align: center;
-                    line-height: 35px;
-                    background-color: #f5fbfe;
-                    color:#6e9dcc;
-                    font-size: 13px;
-                }
+            .MonkeyData-Content {
+                padding-bottom: 50px;
+                font-size: 16px;
+            }
 
-                #MonkeyData-Configuration-Copy-Btn {
-                    min-width: 70px;
-                    margin-top: 0;
-                    margin-left: 10px;
-                    box-shadow: none;
-                    background: #31bc12 linear-gradient(to top, #27a00c 0, #2bb60d 100%);
-                    border: 1px solid #269b0c;
-                    border-radius: 2px;
-                    text-align: center;
-                    outline: 0;
-                    text-decoration: none !important;
-                    text-shadow: 0 2px 3px rgba(1,1,1,0.2);
-                    color: white !important;
-                    font-size: 12px;
-                    font-weight: 900;
-                    text-transform: uppercase;
-                    padding-top: 2px;
-                    padding-bottom:1px
-                    font-family: Roboto, sans-serif;
-                }
+            .MonkeyData-Link {
+                min-width: 70px;
+                box-shadow: none;
+                border-radius: 2px;
+                text-align: center;
+                outline: 0;
+                text-decoration: none !important;
+                text-shadow: 0 2px 3px rgba(1,1,1,0.2);
+                color: white !important;
+                font-weight: 900;
+                text-transform: uppercase;
+                padding: 15px;
+                font-family: Roboto, sans-serif;
+                display: inline-block;
+                width: 35%;
+            }
 
-                .welcome-logo {
-                    width: 100%;
-                    text-align: center;
-                }
+            .MonkeyData-Connect-Link {
+                background: #31bc12 linear-gradient(to top, #27a00c 0, #2bb60d 100%);
+                border: 1px solid #269b0c;
+            }
 
-                .welcome-logo-image {
-                    padding-top: 25px;
-                    padding-bottom: 5px;
-                }
+            .MonkeyData-Dashboard-Link {
+                background: #5194da linear-gradient(to top, #5194da 0, #5194da 100%);
+                border: 1px solid #5194da;
+            }
 
-                .MonkeyData-Configuration-border {
-                    margin-top: 50px;
-                    background-image: url("https://www.monkeydata.com/support/files/1461056760v1rjURQfvhIE8MzmSTfsRMHO1SCMMfg8.gif");
-                    background-size: 450px 3px;
-                    height: 3px;
-                    max-width: 100%;
-                }
+            .MonkeyData-Text {
+                color: #7896b5;
+                padding-bottom: 20px;
+                padding-top: 20px;
+            }
 
-                .MonkeyData-Errors {
-                    padding-top: 20px;
-                    font-family: Roboto, sans-serif;
-                    text-decoration: none !important;
-                    text-shadow: 0 2px 3px rgba(1,1,1,0.2);
-                    font-size: 12px;
-                    font-weight: 900;
-                    display: table;
-                    margin: 0 auto;
-                }
+            .MonkeyData-Configuration-footer {
+                width: 100%;
+                text-align:center;
 
-                .MonkeyData-Error {
-                    margin-top: 10px;
-                    color: #f8ebec;
-                    background-color: #c7292b;
-                    padding-top: 5px;
-                    padding-bottom: 5px;
-                    border-radius: 5px;
-                }
+            }
 
-                .MonkeyData-Error-Mark {
-                    font-size: 14px;
-                    margin-left: 10px;
-                    float: left;
-                }
+            .MonkeyData-Configuration-border {
+                background-image: url("https://www.monkeydata.com/support/files/1461056760v1rjURQfvhIE8MzmSTfsRMHO1SCMMfg8.gif");
+                background-size: 450px 3px;
+                height: 3px;
+                max-width: 100%;
+            }
 
-                .MonkeyData-Error-Message {
-                    padding: 15px;
-                }
-                
-                a, a:visited {
-					text-decoration: none;
-					cursor: pointer;
-				}
-            </style>
+            .MonkeyData-Configuration-logo-image {
+                margin: 20px;
+                max-width: 200px;
+                max-height: 100px;
+            }
+        </style>
 
-            <div class="container-all-welcome">
-                <div class="container-welcome">
-                    <div class="MonkeyData-Configuration-border"></div>
-                    <?php if (count($errors) > 0) : ?>
+        <div class="panel panel-default">
 
-                        <div class="MonkeyData-Errors">
-                            <?php
-                                foreach ($errors as $error) {
-                                    echo "<div class=\"MonkeyData-Error\">";
-                                        echo "<span class=\"MonkeyData-Error-Mark\"> &#x2716; </span>";
-                                        echo "<span class=\"MonkeyData-Error-Message\">". $error . "</span>";
-                                    echo "</div>";
-                                }
-                            ?>
-                        </div>
+            <div id="MonkeyData-Configuration-Page">
+                <div class="MonkeyData-Configuration-border"></div>
 
-                    <?php else : ?>
-
-                        <div class="welcome-messages">
-                            <div class="welcome-message">
-                                COPY URL LINK AND PASTE INTO YOUR MONKEYDATA APP
-                            </div>
-                        </div>
-                        <div class="MonkeyData-Configuration-Url-Box">
-                            <input title="Url" type="text" id="MonkeyData-Configuration-URL" size="<?php echo $urlLength; ?>" readonly value="<?php echo $url; ?>">
-                            <button data-clipboard-target="#MonkeyData-Configuration-URL" id="MonkeyData-Configuration-Copy-Btn"> COPY </button>
-                        </div>
-
-                    <?php endif; ?>
-                    <div class="MonkeyData-Configuration-border"></div>
+                <div class="MonkeyData-Headline-Text">
+                    <div>
+                        THERE IS ONLY ONE STEP
+                        <br/>
+                        BETWEEN YOU AND MONKEYDATA
+                    </div>
                 </div>
 
-                <div class="welcome-logo">
-                    <img class="welcome-logo-image" src="https://www.monkeydata.com/support/files/1461056730r9BLTLaKA6PwVyXqxZwZlAO1GqCCHpvY.png" />
-                </div>
+                <?php if (count($errors) > 0) : ?>
+                    <div class="MonkeyData-Errors">
+                        <?php foreach ($errors as $error) {
+                            echo "<div class=\"MonkeyData-Error\">";
+                            echo "<span class=\"MonkeyData-Error-Mark\"> &#x2716; </span>";
+                            echo $error;
+                            echo "</div>";
+                        }?>
+                    </div>
+                <?php else : ?>
+                    <div class="MonkeyData-Content">
+                        <div class="MonkeyData-Text"> I want to register to MonkeyData app <br/> and connect my online store </div>
+                        <a href="<?php $url ?>" class="MonkeyData-Link MonkeyData-Connect-Link" target="_blank">
+                            REGISTER TO APPLICATION
+                        </a>
+                        <div class="MonkeyData-Text"> I have already MonkeyData account <br/> and I just want to go to dashboards </div>
+                        <a href="https://app.monkeydata.com" class="MonkeyData-Link MonkeyData-Dashboard-Link" target="_blank">
+                            GO TO DASHBOARDS
+                        </a>
+                    </div>
+                <?php endif; ?>
 
+                <div class="MonkeyData-Configuration-footer">
+                    <div class="MonkeyData-Configuration-border"></div>
+
+                    <img class="MonkeyData-Configuration-logo-image" src="https://www.monkeydata.com/support/files/1461056730r9BLTLaKA6PwVyXqxZwZlAO1GqCCHpvY.png" />
+                </div>
             </div>
+
         </div>
     </div>
-<script>
-    !function(t){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=t();else if("function"==typeof define&&define.amd)define(array(),t);else{var e;e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,e.Clipboard=t()}}(function(){var t,e,n;return function t(e,n,r){function o(a,c){if(!n[a]){if(!e[a]){var s="function"==typeof require&&require;if(!c&&s)return s(a,!0);if(i)return i(a,!0);var u=new Error("Cannot find module '"+a+"'");throw u.code="MODULE_NOT_FOUND",u}var l=n[a]={exports:{}};e[a][0].call(l.exports,function(t){var n=e[a][1][t];return o(n?n:t)},l,l.exports,t,e,n,r)}return n[a].exports}for(var i="function"==typeof require&&require,a=0;a<r.length;a++)o(r[a]);return o}({1:[function(t,e,n){var r=t("matches-selector");e.exports=function(t,e,n){for(var o=n?t:t.parentNode;o&&o!==document;){if(r(o,e))return o;o=o.parentNode}}},{"matches-selector":2}],2:[function(t,e,n){function r(t,e){if(i)return i.call(t,e);for(var n=t.parentNode.querySelectorAll(e),r=0;r<n.length;++r)if(n[r]==t)return!0;return!1}var o=Element.prototype,i=o.matchesSelector||o.webkitMatchesSelector||o.mozMatchesSelector||o.msMatchesSelector||o.oMatchesSelector;e.exports=r},{}],3:[function(t,e,n){function r(t,e,n,r){var i=o.apply(this,arguments);return t.addEventListener(n,i),{destroy:function(){t.removeEventListener(n,i)}}}function o(t,e,n,r){return function(n){n.delegateTarget=i(n.target,e,!0),n.delegateTarget&&r.call(t,n)}}var i=t("closest");e.exports=r},{closest:1}],4:[function(t,e,n){n.node=function(t){return void 0!==t&&t instanceof HTMLElement&&1===t.nodeType},n.nodeList=function(t){var e=Object.prototype.toString.call(t);return void 0!==t&&("[object NodeList]"===e||"[object HTMLCollection]"===e)&&"length"in t&&(0===t.length||n.node(t[0]))},n.string=function(t){return"string"==typeof t||t instanceof String},n.function=function(t){var e=Object.prototype.toString.call(t);return"[object Function]"===e}},{}],5:[function(t,e,n){function r(t,e,n){if(!t&&!e&&!n)throw new Error("Missing required arguments");if(!c.string(e))throw new TypeError("Second argument must be a String");if(!c.function(n))throw new TypeError("Third argument must be a Function");if(c.node(t))return o(t,e,n);if(c.nodeList(t))return i(t,e,n);if(c.string(t))return a(t,e,n);throw new TypeError("First argument must be a String, HTMLElement, HTMLCollection, or NodeList")}function o(t,e,n){return t.addEventListener(e,n),{destroy:function(){t.removeEventListener(e,n)}}}function i(t,e,n){return Array.prototype.forEach.call(t,function(t){t.addEventListener(e,n)}),{destroy:function(){Array.prototype.forEach.call(t,function(t){t.removeEventListener(e,n)})}}}function a(t,e,n){return s(document.body,t,e,n)}var c=t("./is"),s=t("delegate");e.exports=r},{"./is":4,delegate:3}],6:[function(t,e,n){function r(t){var e;if("INPUT"===t.nodeName||"TEXTAREA"===t.nodeName)t.focus(),t.setSelectionRange(0,t.value.length),e=t.value;else{t.hasAttribute("contenteditable")&&t.focus();var n=window.getSelection(),r=document.createRange();r.selectNodeContents(t),n.removeAllRanges(),n.addRange(r),e=n.toString()}return e}e.exports=r},{}],7:[function(t,e,n){function r(){}r.prototype={on:function(t,e,n){var r=this.e||(this.e={});return(r[t]||(r[t]=array())).push({fn:e,ctx:n}),this},once:function(t,e,n){function r(){o.off(t,r),e.apply(n,arguments)}var o=this;return r._=e,this.on(t,r,n)},emit:function(t){var e=array().slice.call(arguments,1),n=((this.e||(this.e={}))[t]||array()).slice(),r=0,o=n.length;for(r;o>r;r++)n[r].fn.apply(n[r].ctx,e);return this},off:function(t,e){var n=this.e||(this.e={}),r=n[t],o=array();if(r&&e)for(var i=0,a=r.length;a>i;i++)r[i].fn!==e&&r[i].fn._!==e&&o.push(r[i]);return o.length?n[t]=o:delete n[t],this}},e.exports=r},{}],8:[function(t,e,n){"use strict";function r(t){return t&&t.__esModule?t:{"default":t}}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}n.__esModule=!0;var i=function(){function t(t,e){for(var n=0;n<e.length;n++){var r=e[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(t,r.key,r)}}return function(e,n,r){return n&&t(e.prototype,n),r&&t(e,r),e}}(),a=t("select"),c=r(a),s=function(){function t(e){o(this,t),this.resolveOptions(e),this.initSelection()}return t.prototype.resolveOptions=function t(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];this.action=e.action,this.emitter=e.emitter,this.target=e.target,this.text=e.text,this.trigger=e.trigger,this.selectedText=""},t.prototype.initSelection=function t(){if(this.text&&this.target)throw new Error('Multiple attributes declared, use either "target" or "text"');if(this.text)this.selectFake();else{if(!this.target)throw new Error('Missing required attributes, use either "target" or "text"');this.selectTarget()}},t.prototype.selectFake=function t(){var e=this;this.removeFake(),this.fakeHandler=document.body.addEventListener("click",function(){return e.removeFake()}),this.fakeElem=document.createElement("textarea"),this.fakeElem.style.position="absolute",this.fakeElem.style.left="-9999px",this.fakeElem.style.top=(window.pageYOffset||document.documentElement.scrollTop)+"px",this.fakeElem.setAttribute("readonly",""),this.fakeElem.value=this.text,document.body.appendChild(this.fakeElem),this.selectedText=c.default(this.fakeElem),this.copyText()},t.prototype.removeFake=function t(){this.fakeHandler&&(document.body.removeEventListener("click"),this.fakeHandler=null),this.fakeElem&&(document.body.removeChild(this.fakeElem),this.fakeElem=null)},t.prototype.selectTarget=function t(){this.selectedText=c.default(this.target),this.copyText()},t.prototype.copyText=function t(){var e=void 0;try{e=document.execCommand(this.action)}catch(n){e=!1}this.handleResult(e)},t.prototype.handleResult=function t(e){e?this.emitter.emit("success",{action:this.action,text:this.selectedText,trigger:this.trigger,clearSelection:this.clearSelection.bind(this)}):this.emitter.emit("error",{action:this.action,trigger:this.trigger,clearSelection:this.clearSelection.bind(this)})},t.prototype.clearSelection=function t(){this.target&&this.target.blur(),window.getSelection().removeAllRanges()},t.prototype.destroy=function t(){this.removeFake()},i(t,[{key:"action",set:function t(){var e=arguments.length<=0||void 0===arguments[0]?"copy":arguments[0];if(this._action=e,"copy"!==this._action&&"cut"!==this._action)throw new Error('Invalid "action" value, use either "copy" or "cut"')},get:function t(){return this._action}},{key:"target",set:function t(e){if(void 0!==e){if(!e||"object"!=typeof e||1!==e.nodeType)throw new Error('Invalid "target" value, use a valid Element');this._target=e}},get:function t(){return this._target}}]),t}();n.default=s,e.exports=n.default},{select:6}],9:[function(t,e,n){"use strict";function r(t){return t&&t.__esModule?t:{"default":t}}function o(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}function i(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function, not "+typeof e);t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,enumerable:!1,writable:!0,configurable:!0}}),e&&(Object.setPrototypeOf?Object.setPrototypeOf(t,e):t.__proto__=e)}function a(t,e){var n="data-clipboard-"+t;if(e.hasAttribute(n))return e.getAttribute(n)}n.__esModule=!0;var c=t("./clipboard-action"),s=r(c),u=t("tiny-emitter"),l=r(u),f=t("good-listener"),d=r(f),h=function(t){function e(n,r){o(this,e),t.call(this),this.resolveOptions(r),this.listenClick(n)}return i(e,t),e.prototype.resolveOptions=function t(){var e=arguments.length<=0||void 0===arguments[0]?{}:arguments[0];this.action="function"==typeof e.action?e.action:this.defaultAction,this.target="function"==typeof e.target?e.target:this.defaultTarget,this.text="function"==typeof e.text?e.text:this.defaultText},e.prototype.listenClick=function t(e){var n=this;this.listener=d.default(e,"click",function(t){return n.onClick(t)})},e.prototype.onClick=function t(e){var n=e.delegateTarget||e.currentTarget;this.clipboardAction&&(this.clipboardAction=null),this.clipboardAction=new s.default({action:this.action(n),target:this.target(n),text:this.text(n),trigger:n,emitter:this})},e.prototype.defaultAction=function t(e){return a("action",e)},e.prototype.defaultTarget=function t(e){var n=a("target",e);return n?document.querySelector(n):void 0},e.prototype.defaultText=function t(e){return a("text",e)},e.prototype.destroy=function t(){this.listener.destroy(),this.clipboardAction&&(this.clipboardAction.destroy(),this.clipboardAction=null)},e}(l.default);n.default=h,e.exports=n.default},{"./clipboard-action":8,"good-listener":5,"tiny-emitter":7}]},{},[9])(9)});
-    new Clipboard('#MonkeyData-Configuration-Copy-Btn');
-</script>
+</div>
 <?php echo $footer; ?>
 
