@@ -145,14 +145,14 @@
             </div>
             <?php else : ?>
             <div class="MonkeyData-Content">
-                <div class="MonkeyData-Text"> I want to register to MonkeyData app <br/> and connect my online store </div>
-                <a href="<?php echo $url ?>" class="MonkeyData-Link MonkeyData-Connect-Link" target="_blank">
-                    REGISTER TO APPLICATION
-                </a>
-                <div class="MonkeyData-Text"> I have already MonkeyData account <br/> and I just want to go to dashboards </div>
-                <a href="https://app.monkeydata.com" class="MonkeyData-Link MonkeyData-Dashboard-Link" target="_blank">
-                    GO TO DASHBOARDS
-                </a>
+ <div class="MonkeyData-Text"> I want to register to the MonkeyData app <br/> and connect my online store </div>
+            <a href="<?php echo $url; ?>" class="MonkeyData-Link MonkeyData-Connect-Link" target="_blank">
+                REGISTER TO MONKEYDATA
+            </a>
+            <div class="MonkeyData-Text"> I already have a MonkeyData account <br/> and I just want to go to dashboards </div>
+            <a href="https://app.monkeydata.com" class="MonkeyData-Link MonkeyData-Dashboard-Link" target="_blank">
+                GO TO DASHBOARDS
+            </a>
             </div>
             <?php endif; ?>
 
