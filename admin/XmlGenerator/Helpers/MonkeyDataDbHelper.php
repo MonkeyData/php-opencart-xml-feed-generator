@@ -2,7 +2,9 @@
 
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers;
 
-use PDO;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\IMonkeyDataConnection;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeydataMysqli;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeydataPDO;
 
 
 /**
@@ -13,7 +15,7 @@ use PDO;
 class MonkeyDataDbHelper {
 
     /**
-     * @var PDO
+     * @var IMonkeyDataConnection
      */
     private $connection;
 
@@ -23,11 +25,12 @@ class MonkeyDataDbHelper {
     protected static $instance = null;
     
     public function __construct($dbconfig) {
-        $options = array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
-        );
-        $this->connection = @new PDO("mysql:host=" . $dbconfig['host'] . ";dbname=" . $dbconfig['name'], $dbconfig['user'], $dbconfig['pass'], $options);
+        if(class_exists("PDO")) {
+            $this->connection = new MonkeydataPDO($dbconfig);
+        }else{
+            $this->connection = new MonkeydataMysqli($dbconfig);
+        }
+
     }
     
     /**
@@ -36,7 +39,7 @@ class MonkeyDataDbHelper {
      * @return array
      */
     public function query($query){
-         return $this->connection->query($query, PDO::FETCH_ASSOC);
+         return $this->connection->query($query);
     }
     
     /**
