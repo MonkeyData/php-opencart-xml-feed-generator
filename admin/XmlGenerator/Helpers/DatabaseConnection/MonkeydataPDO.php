@@ -31,7 +31,8 @@ class MonkeydataPDO implements IMonkeyDataConnection
      * @return array
      */
     public function query($query){
-        return $this->connection->query($query, PDO::FETCH_ASSOC);
+        $result = $this->connection->query($query, PDO::FETCH_ASSOC);
+        return new MonkeydataPdoStatement($result);
     }
 
 

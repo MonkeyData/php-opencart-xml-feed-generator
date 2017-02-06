@@ -18,13 +18,14 @@ class MonkeydataMysqli implements IMonkeyDataConnection
     private $connection;
 
     public function __construct($dbconfig) {
-        $options = array(
-            PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
-        );
+//        $options = array(
+//            PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+//            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+//        );
         // $this->connection = @new PDO("mysql:host=" . $dbconfig['host'] . ";dbname=" . $dbconfig['name'], $dbconfig['user'], $dbconfig['pass'], $options);
 
         $this->connection = new \mysqli($dbconfig['host'], $dbconfig['user'], $dbconfig['pass'], $dbconfig['name']);
+        $this->connection->set_charset("utf8");
     }
 
     /**
@@ -33,11 +34,8 @@ class MonkeydataMysqli implements IMonkeyDataConnection
      * @return array
      */
     public function query($query){
-        $result = $this->connection->query();
-        if(!$result){
-            return array();
-        }
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $result = $this->connection->query($query);
+        return new MonkeydataMysqliStatement($result);
     }
 
 
