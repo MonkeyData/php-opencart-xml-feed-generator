@@ -9,7 +9,7 @@
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection;
 
 
-class MonkeydataMysqliStatement implements IMonkeydataStatement {
+class MonkeyDataMysqliStatement implements IMonkeyDataStatement {
 
     /**
      * @var \mysqli_result

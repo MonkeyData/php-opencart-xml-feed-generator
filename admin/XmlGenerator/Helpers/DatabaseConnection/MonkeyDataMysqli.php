@@ -9,7 +9,7 @@ use \mysqli;
  * Date: 03.02.2017
  * Time: 15:39
  */
-class MonkeydataMysqli implements IMonkeyDataConnection
+class MonkeyDataMysqli implements IMonkeyDataConnection
 {
 
     /**
@@ -35,7 +35,7 @@ class MonkeydataMysqli implements IMonkeyDataConnection
      */
     public function query($query){
         $result = $this->connection->query($query);
-        return new MonkeydataMysqliStatement($result);
+        return new MonkeyDataMysqliStatement($result);
     }
 
 

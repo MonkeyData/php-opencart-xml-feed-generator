@@ -9,7 +9,7 @@
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection;
 
 
-class MonkeydataPdoStatement implements IMonkeydataStatement {
+class MonkeyDataPdoStatement implements IMonkeyDataStatement {
 
     /**
      * @var \PDOStatement

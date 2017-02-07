@@ -9,7 +9,7 @@ use \PDO;
  * Date: 03.02.2017
  * Time: 15:39
  */
-class MonkeydataPDO implements IMonkeyDataConnection
+class MonkeyDataPDO implements IMonkeyDataConnection
 {
 
     /**
@@ -32,7 +32,7 @@ class MonkeydataPDO implements IMonkeyDataConnection
      */
     public function query($query){
         $result = $this->connection->query($query, PDO::FETCH_ASSOC);
-        return new MonkeydataPdoStatement($result);
+        return new MonkeyDataPdoStatement($result);
     }
 
 

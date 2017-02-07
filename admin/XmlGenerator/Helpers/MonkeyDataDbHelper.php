@@ -3,8 +3,8 @@
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers;
 
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\IMonkeyDataConnection;
-use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeydataMysqli;
-use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeydataPDO;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeyDataMysqli;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection\MonkeyDataPDO;
 
 
 /**
@@ -26,9 +26,9 @@ class MonkeyDataDbHelper {
     
     public function __construct($dbconfig) {
         if(class_exists("PDO")) {
-            $this->connection = new MonkeydataPDO($dbconfig);
+            $this->connection = new MonkeyDataPDO($dbconfig);
         }else{
-            $this->connection = new MonkeydataMysqli($dbconfig);
+            $this->connection = new MonkeyDataMysqli($dbconfig);
         }
 
     }

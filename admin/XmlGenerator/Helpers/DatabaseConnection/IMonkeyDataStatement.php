@@ -9,7 +9,7 @@
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Helpers\DatabaseConnection;
 
 
-interface IMonkeydataStatement {
+interface IMonkeyDataStatement {
 
     public function fetchAll();
 
