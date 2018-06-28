@@ -193,26 +193,44 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
 
         $output = array();
         $customers = array();
+        $selectAttributes = array(
+            '`o`.`order_id`',
+            '`store_id`',
+            '`store_name`',
+            '`date_added`',
+            '`date_modified`',
+            '`order_status_id`',
+            '`o`.`total` - SUM(COALESCE(`otax`.`value`, 0)) AS total_price_without_vat',
+            '`comment`',
+            '`o`.`total`',
+            '`currency_id`',
+            '`currency_code`',
+            '`o`.`currency_value`',
+            '`customer_id`',
+            '`email`',
+            '`payment_city`',
+            '`payment_country`',
+            '`payment_firstname`',
+            '`payment_postcode`',
+            '`payment_company`'
+        );
 
         $results = $this->connection->query(
             "SELECT "
-            . " `o`.order_id, store_id, store_name, "
-            . " date_added, date_modified, order_status_id, "
-            . " `ot`.`value` as PriceWithoutVat, "
-            . " comment, `o`.`total`, "
-            . " currency_id, currency_code, `o`.`currency_value`, "
-            . " "
-            . " customer_id, email, payment_city, payment_country, payment_firstname, payment_postcode, payment_company "
-            . " "
-            . " FROM {$this->getTableName('order')} as o "
-            . " INNER JOIN {$this->getTableName('order_total')} as ot ON "
+            . implode(', ', $selectAttributes)
+            . " FROM {$this->getTableName('order')} AS o "
+            . " INNER JOIN {$this->getTableName('order_total')} AS ot ON "
             . " `o`.`order_id` = `ot`.`order_id` "
+            . " LEFT JOIN {$this->getTableName('order_total')} AS otax ON"
+            . " `o`.`order_id` = `otax`.`order_id` "
             . " WHERE ((`o`.`date_added` >= '{$date_from}' "
             . " AND `o`.`date_added` <= '{$date_to}' ) "
             . " OR (`o`.`date_modified` >= '{$date_from}' "
             . " AND `o`.`date_modified` <= '{$date_to}' )) "
             . " AND `ot`.`code` = 'sub_total' "
+            . " AND `otax`.`code` = 'tax' "
             . " AND `o`.`order_status_id` > 0 "
+            . " GROUP BY `o`.`order_id`"
             . " LIMIT {$start}, {$step}"
         )->fetchAll();
 
@@ -224,7 +242,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'date_created' => $this->syncTimeWithEshop($result["date_added"])->format(DateTime::ISO8601),
                 'date_updated' => $this->syncTimeWithEshop($result["date_modified"])->format(DateTime::ISO8601),
                 'price' => $result["total"] * $result['currency_value'],
-                'price_without_vat' => $result["PriceWithoutVat"] * $result['currency_value'],
+                'price_without_vat' => $result["total_price_without_vat"] * $result['currency_value'],
                 'order_status_id' => $result["order_status_id"],
                 'payment_id' => $result["order_id"],
                 'shipping_id' => $result["order_id"],

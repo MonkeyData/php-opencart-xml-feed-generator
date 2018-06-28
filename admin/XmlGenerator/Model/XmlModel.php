@@ -360,7 +360,8 @@ abstract class XmlModel implements XmlModelInterface {
 
     /**
      * Function to get security hash
-     * @return type
+     * @return string|bool
+     * @throws \Exception
      */
     public function getAuthenticationHash() {
         $hash = $this->getConfig()->getHash();

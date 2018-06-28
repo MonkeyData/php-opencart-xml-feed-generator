@@ -14,7 +14,7 @@ class ProductPurchasePriceEntity extends Entity {
      * @param mixed $value
      */
     public function __construct($value = null) {
-        parent::__construct("PUPCHASE_PRICE", self::DT_float, $value);
+        parent::__construct("PURCHASE_PRICE", self::DT_float, $value);
     }
     
     protected function setting() {
