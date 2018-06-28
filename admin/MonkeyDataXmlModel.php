@@ -219,15 +219,12 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             "SELECT "
             . implode(', ', $selectAttributes)
             . " FROM {$this->getTableName('order')} AS o "
-            . " INNER JOIN {$this->getTableName('order_total')} AS ot ON "
-            . " `o`.`order_id` = `ot`.`order_id` "
             . " LEFT JOIN {$this->getTableName('order_total')} AS otax ON"
             . " `o`.`order_id` = `otax`.`order_id` "
             . " WHERE ((`o`.`date_added` >= '{$date_from}' "
             . " AND `o`.`date_added` <= '{$date_to}' ) "
             . " OR (`o`.`date_modified` >= '{$date_from}' "
             . " AND `o`.`date_modified` <= '{$date_to}' )) "
-            . " AND `ot`.`code` = 'sub_total' "
             . " AND `otax`.`code` = 'tax' "
             . " AND `o`.`order_status_id` > 0 "
             . " GROUP BY `o`.`order_id`"
@@ -534,10 +531,42 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
         return $output;
     }
 
+    /**
+     * @param array $orderIds
+     * @return array
+     */
+    public function getDiscountItems($orderIds) {
+        $results = $this->connection->query(
+            "SELECT `order_total_id`, `order_id`, `title`, `value` "
+            . "FROM {$this->getTableName('order_total')} "
+            . "WHERE `code` = 'coupon' AND `order_id` IN ('" . implode("', '", $orderIds) . "')"
+        )->fetchAll();
+
+        $output = array();
+
+        foreach ($results as $result) {
+            $currencyValue = 1;
+
+            if (!empty($this->ordersCurrencyValue[$result['order_id']])) {
+                $currencyValue = $this->ordersCurrencyValue[$result['order_id']];
+            }
+
+            $output[] = array(
+                'id' => $result["order_total_id"],
+                'order_id' => $result["order_id"],
+                'name' => $result["title"],
+                'value' => -($result["value"] * $currencyValue)
+            );
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param string $tableName
+     * @return string
+     */
     private function getTableName($tableName) {
         return "`" . $this->config['database']['prefix'] . "{$tableName}`";
     }
-    
-
 }
-

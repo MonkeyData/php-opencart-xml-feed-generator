@@ -7,7 +7,11 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CategoryBean;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CategoryList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CustomerBean;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CustomerList;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\DiscountBean;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\DiscountList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderBean;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderDiscountBean;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderDiscountList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderProductBeans;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderProductsList;
@@ -359,6 +363,31 @@ abstract class XmlModel implements XmlModelInterface {
     }
 
     /**
+     * @param array $orderIds
+     * @return OrderDiscountList
+     */
+    public function getDiscounts($orderIds) {
+        $discounts = $this->getDiscountItems($orderIds);
+        $orderDiscountList = new OrderDiscountList();
+
+        foreach ($discounts as $discountData) {
+            $orderId = $discountData['order_id'];
+            unset($discountData['order_id']);
+            $discountBean = new DiscountBean($discountData);
+
+            if (($discountList = $orderDiscountList->getBeanById($orderId)) !== false) {
+                $discountList->getDiscountList()->addBean($discountBean);
+            } else {
+                $discountList = new DiscountList();
+                $discountList->addBean($discountBean);
+                $orderDiscountList->addBean(new OrderDiscountBean(array('id' => $orderId, 'discountList' => $discountList)));
+            }
+        }
+
+        return $orderDiscountList;
+    }
+
+    /**
      * Function to get security hash
      * @return string|bool
      * @throws \Exception
@@ -403,7 +432,7 @@ abstract class XmlModel implements XmlModelInterface {
     }
     
     /**
-     * @param int $start
+     * @return int
      */
     public function getStart() {
         return $this->start;

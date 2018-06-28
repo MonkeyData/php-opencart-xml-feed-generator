@@ -45,7 +45,7 @@ abstract class BeansList implements Iterator, Countable {
 
     /**
      * @param int $id
-     * @return bool
+     * @return Beans|bool
      */
     public function getBeanById($id) {
         if(isset($this->list[$id])) {

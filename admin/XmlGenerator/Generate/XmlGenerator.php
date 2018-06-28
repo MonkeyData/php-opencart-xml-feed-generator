@@ -4,7 +4,9 @@ namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Generate;
 
 use Exception;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CustomerList;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\DiscountList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderBean;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderDiscountList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderProductsList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderStatusList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\PaymentList;
@@ -29,11 +31,15 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\CustomerVatStatusEnti
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\CustomerZipCodeEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\DateCreatedEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\DateUpdatedEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\DiscountEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\DiscountNameEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\DiscountValueEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\ErrorEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\EshopEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\IdOrderEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\MemoryUsageEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\NoteEntity;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\OrderDiscountsEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\OrderProductsEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\OrderStatusIdEntity;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Entities\OrderStatusNameEntity;
@@ -142,6 +148,11 @@ abstract class XmlGenerator {
      * @var OrderProductsList
      */
     private $orderProductBean;
+
+    /**
+     * @var OrderDiscountList
+     */
+    private $orderDiscountBeans;
     
     /**
      *
@@ -235,8 +246,8 @@ abstract class XmlGenerator {
         $this->shipping = $this->model->getShippings($this->model->getShipppingIds());
         $this->customerBean = $this->model->getCustomers($this->model->getCustomerIds());
         $this->orderProductBean = $this->model->getProducts($this->model->getOrderIds());
+        $this->orderDiscountBeans = $this->model->getDiscounts($this->model->getOrderIds());
 
-        
         foreach ($orders as $order) {
             $this->showShopOrder($order);
         }
@@ -332,6 +343,20 @@ abstract class XmlGenerator {
                 }
             }
             $shopOrder->addItem($orderProducts);
+        }
+
+        if (($orderDiscountBean = $this->orderDiscountBeans->getBeanById($order->getId())) !== false) {
+            $orderDiscounts = new OrderDiscountsEntity();
+            $discountsList = $orderDiscountBean->getDiscountList();
+
+            foreach ($discountsList as $discountData) {
+                $discount = new DiscountEntity();
+                $discount->addItem(new DiscountNameEntity($discountData->getName()));
+                $discount->addItem(new DiscountValueEntity($discountData->getValue()));
+                $orderDiscounts->addItem($discount);
+            }
+
+            $shopOrder->addItem($orderDiscounts);
         }
 
         echo $shopOrder;
