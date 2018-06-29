@@ -353,12 +353,14 @@ abstract class XmlModel implements XmlModelInterface {
     public function prepareOrders($date_from, $date_to) {
         $this->orders = $this->selectOrders($date_from, $date_to, $this->start, $this->step);
         $this->orderIds = $this->orders->getIds();
+
         foreach ($this->orders as $order) {
             $this->paymentIds[$order->payment_id] = $order->payment_id;
             $this->shippingIds[$order->shipping_id] = $order->shipping_id;
             $this->customerIds[$order->customer_id] = $order->customer_id;
             $this->orderStatusesIds[$order->order_status_id] = $order->order_status_id;
         }
+
         $this->start += $this->step;
     }
 

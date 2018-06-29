@@ -1,13 +1,14 @@
 <?php
+
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model;
 
+
 /**
- * interface CurrentXmlModel
- *
+ * Interface CurrentXmlModelInterface
+ * @package MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model
  * @author MD Developers
  */
 interface CurrentXmlModelInterface {
-    
     /**
     * The function chooses a list of orders in selected period. The period is defined by parametres date_from and date_to.
      * The condition is met by orders which are created or updated in the selected period.
@@ -177,4 +178,17 @@ interface CurrentXmlModelInterface {
      * @return array
      */
     function getCategoriesItems();
+
+    /**
+     * Prepares list of order discounts (for example coupons)
+     *
+     * id - discount's ID
+     * order_id - ID of the order discount was used for
+     * title - discount's name (for example coupon code)
+     * value - amount that was deducted from the order (negative value means additional charge instead of discount)
+     *
+     * @param array $orderIds
+     * @return array
+     */
+    function getDiscountItems($orderIds);
 }

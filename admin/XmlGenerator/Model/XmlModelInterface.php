@@ -2,7 +2,9 @@
 
 namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model;
 
+
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\CategoryList;
+use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderDiscountList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderProductsList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\OrderStatusList;
@@ -10,16 +12,16 @@ use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\PaymentList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ProductCategoriesList;
 use MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans\ShippingList;
 
-
 /**
  * Interface XmlModel
  * @package MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Model
  * @author MD Developers
  */
 interface XmlModelInterface {
-
+    /**
+     * XmlModelInterface constructor.
+     */
     public function __construct();
-
 
     /**
      * @param array $categoriesList
@@ -96,11 +98,22 @@ interface XmlModelInterface {
     public function prepareOrders($date_from, $date_to);
 
     /**
+     * @param array $orderIds
+     * @return OrderDiscountList
+     */
+    public function getDiscounts($orderIds);
+
+    /**
      * @param string $hash
      * @return bool
      */
     public function authenticateHash($hash);
 
+    /**
+     * @param string $login
+     * @param string $password
+     * @return bool
+     */
     public function authenticateLogin($login, $password);
 
     /**
