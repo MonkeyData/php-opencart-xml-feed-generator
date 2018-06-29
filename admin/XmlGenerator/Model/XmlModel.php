@@ -126,7 +126,11 @@ abstract class XmlModel implements XmlModelInterface {
      */
     protected $configObject = null;
 
-    public function __construct(\MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Config $config = null) {
+    /**
+     * XmlModel constructor.
+     * @param Config|null $config
+     */
+    public function __construct(Config $config = null) {
         $this->checkConfig();
         if ($this->config['database']['use']) {
             $this->connection = MonkeyDataDbHelper::getInstance($this->config['database']);
@@ -139,8 +143,6 @@ abstract class XmlModel implements XmlModelInterface {
         }
         $this->setConfig($config);
     }
-
-    
 
     /**
      * @param string $date_from
@@ -191,11 +193,29 @@ abstract class XmlModel implements XmlModelInterface {
      * @return ShippingList
      */
     public function getShippings($shipppingIds) {
+        $orderTaxes = $this->getOrderTaxes($this->getOrderIds());
         $result = $this->getShippingsItems($shipppingIds);
         $data = new ShippingList();
+
         foreach ($result as $item) {
+            if (isset($orderTaxes[$item['id']])) {
+                $priceWithoutVat = $item['shipping_price_without_vat'];
+                $price = $priceWithoutVat;
+
+                foreach ($orderTaxes[$item['id']] as $orderTax) {
+                    if ($orderTax['type'] == 'F') {
+                        $price += $orderTax['value'];
+                    } elseif ($orderTax['type'] == 'P') {
+                        $price += $priceWithoutVat * $orderTax['value'] / 100;
+                    }
+                }
+
+                $item['shipping_price'] = $price;
+            }
+
             $data->addBean(new ShippingBean($item));
         }
+
         return $data;
     }
 
@@ -215,7 +235,7 @@ abstract class XmlModel implements XmlModelInterface {
      *  If you decide not to use the list of ids of customers found in orders, the export can be slower and more data-demanding, in case of larger amount of orders.
      *
      * @param array $customerIds
-     * @return ShippingList
+     * @return CustomerList
      */
     public function getCustomers($customerIds) {
         $result = $this->getCustomersItems($customerIds);
@@ -248,7 +268,7 @@ abstract class XmlModel implements XmlModelInterface {
     }
 
     /**
-     * This function prepares the list of products for every order. Informtion about the product:
+     * This function prepares the list of products for every order. Information about the product:
      *
      * id - product id
      * product_name - product name
@@ -265,7 +285,7 @@ abstract class XmlModel implements XmlModelInterface {
      * list($list_of_product_list) - bean($product_list_bean) - list($product_list) - bean($product_bean)
      *
      * to understand saving, let's begin from the end.
-     *  - The last element is Bean object - data-based representation of a single product (consists all atributes mentioned above) ($product_bean).
+     *  - The last element is Bean object - data-based representation of a single product (consists all attributes mentioned above) ($product_bean).
      *  - All products are being saved into the object List = the list. One lost represents a list of products from one order ($product_list).
      *  - Every List is saved into its own Bean, plus the information of which order this list of products belongs to ($product_list_bean).
      *  - In the end, there is this bean, consisting of a list of products for one order and order id into the object List, where the list of product lists is creted ($list_of_product_list)
@@ -308,6 +328,7 @@ abstract class XmlModel implements XmlModelInterface {
     /**
      * @param array $categoriesList
      * @param string $categoryId
+     * @param string $productId
      * @return ProductCategoriesList
      */
     public function getCategories($categoriesList, $categoryId, $productId) {
@@ -320,7 +341,7 @@ abstract class XmlModel implements XmlModelInterface {
     }
 
     /**
-     * @param $row
+     * @param array $row
      * @param ProductCategoriesList $categoriesList
      * @param string $productId
      * @throws MonkeyDataMissingInputException
@@ -355,10 +376,10 @@ abstract class XmlModel implements XmlModelInterface {
         $this->orderIds = $this->orders->getIds();
 
         foreach ($this->orders as $order) {
-            $this->paymentIds[$order->payment_id] = $order->payment_id;
-            $this->shippingIds[$order->shipping_id] = $order->shipping_id;
-            $this->customerIds[$order->customer_id] = $order->customer_id;
-            $this->orderStatusesIds[$order->order_status_id] = $order->order_status_id;
+            $this->paymentIds[$order->getPayment_id()] = $order->getPayment_id();
+            $this->shippingIds[$order->getShipping_id()] = $order->getShipping_id();
+            $this->customerIds[$order->getCustomer_id()] = $order->getCustomer_id();
+            $this->orderStatusesIds[$order->getOrder_status_id()] = $order->getOrder_status_id();
         }
 
         $this->start += $this->step;

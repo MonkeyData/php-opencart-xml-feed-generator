@@ -240,7 +240,6 @@ abstract class XmlGenerator {
             return; //end of calling this recursive function
         }
         
-        
         $this->orderStatusBean = $this->model->getOrderStatuses($this->model->getOrderStatusesIds());
         $this->payment = $this->model->getPayments($this->model->getPaymentIds());
         $this->shipping = $this->model->getShippings($this->model->getShipppingIds());
@@ -462,6 +461,4 @@ abstract class XmlGenerator {
     public function setConfig(Config $config) {
         $this->config = $config;
     }
-
-
 }

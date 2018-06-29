@@ -220,12 +220,11 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
             . implode(', ', $selectAttributes)
             . " FROM {$this->getTableName('order')} AS o "
             . " LEFT JOIN {$this->getTableName('order_total')} AS otax ON"
-            . " `o`.`order_id` = `otax`.`order_id` "
+            . " `o`.`order_id` = `otax`.`order_id` AND `otax`.`code` = 'tax' "
             . " WHERE ((`o`.`date_added` >= '{$date_from}' "
             . " AND `o`.`date_added` <= '{$date_to}' ) "
             . " OR (`o`.`date_modified` >= '{$date_from}' "
             . " AND `o`.`date_modified` <= '{$date_to}' )) "
-            . " AND `otax`.`code` = 'tax' "
             . " AND `o`.`order_status_id` > 0 "
             . " GROUP BY `o`.`order_id`"
             . " LIMIT {$start}, {$step}"
@@ -556,6 +555,53 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'order_id' => $result["order_id"],
                 'name' => $result["title"],
                 'value' => -($result["value"] * $currencyValue)
+            );
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param array $orderIds
+     * @return array
+     */
+    public function getOrderTaxes($orderIds) {
+        $results = $this->connection->query(
+            "SELECT O.`order_id`, T.`rate`, T.`type` "
+            . "FROM {$this->getTableName('order')} O "
+            . "LEFT JOIN {$this->getTableName('zone_to_geo_zone')} ZTZ "
+            . "ON O.shipping_country_id = ZTZ.country_id AND O.shipping_zone_id = ZTZ.zone_id "
+            . "LEFT JOIN {$this->getTableName('zone_to_geo_zone')} ZTC "
+            . "ON O.shipping_country_id = ZTC.country_id AND ZTC.zone_id = 0 "
+            . "JOIN {$this->getTableName('tax_rate')} T "
+            . "ON T.geo_zone_id = ZTZ.geo_zone_id OR T.geo_zone_id = ZTC.geo_zone_id "
+            . "JOIN {$this->getTableName('tax_rule')} TR "
+            . "ON T.tax_rate_id = TR.tax_rate_id AND TR.based = 'shipping' "
+            . "JOIN {$this->getTableName('setting')} S "
+            . "ON S.code = SUBSTRING_INDEX(O.shipping_code, '.', 1) "
+            . "AND S.`key` = CONCAT(SUBSTRING_INDEX(O.shipping_code, '.', -1), '_tax_class_id') "
+            . "JOIN {$this->getTableName('tax_class')} TC "
+            . "ON TC.tax_class_id = S.value "
+            . "WHERE TR.tax_class_id = TC.tax_class_id "
+            . "AND O.`order_id` IN ('" . implode("', '", $orderIds) . "')"
+        )->fetchAll();
+
+        $output = array();
+
+        foreach ($results as $result) {
+            $currencyValue = 1;
+
+            if (!empty($this->ordersCurrencyValue[$result['order_id']])) {
+                $currencyValue = $this->ordersCurrencyValue[$result['order_id']];
+            }
+
+            if (!isset($output[$result['order_id']])) {
+                $output[$result['order_id']] = array();
+            }
+
+            $output[$result['order_id']][] = array(
+                'type' => $result['type'],
+                'value' => $result['type'] == 'F' ? floatval($result['rate']) * $currencyValue : floatval($result['rate'])
             );
         }
 
