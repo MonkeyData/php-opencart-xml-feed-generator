@@ -380,30 +380,52 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return array
      */
     public function getProductsItems($orderIds) {
+        $selectAttributes = array(
+            "`op`.`order_product_id`",
+            "`op`.`product_id`",
+            "`op`.`order_id`",
+            "`op`.`price`",
+            "`op`.`tax`",
+            "`op`.`total`",
+            "`op`.`name`",
+            "`op`.`quantity`",
+            "`pc`.`category_id`",
+            "`oos`.`variant_name`"
+        );
+
         $results = $this->connection->query(
-                        "SELECT "
-                        . "`op`.`product_id`, order_id, price, tax, "
-                        . "total, name, quantity, category_id "
-                        . "FROM {$this->getTableName('order_product')} as `op` "
-                        . "INNER JOIN {$this->getTableName('product_to_category')} as `pc` ON "
-                        . "`op`.`product_id` = `pc`.`product_id` "
-                        . "WHERE order_id "
-                        . "IN ('" . implode("', '", $orderIds) . "')"
-                )->fetchAll();
+            "SELECT " . implode(', ', $selectAttributes) . " "
+            . "FROM {$this->getTableName('order_product')} as `op` "
+            . "LEFT JOIN {$this->getTableName('product_to_category')} as `pc` "
+            . "ON `op`.`product_id` = `pc`.`product_id` "
+            . "LEFT JOIN ("
+            . "SELECT `oo`.`order_id`, `oo`.`order_product_id`, GROUP_CONCAT(CONCAT(`oo`.`name`, ': ', `oo`.`value`) SEPARATOR ', ') AS `variant_name` "
+            . "FROM {$this->getTableName('order_option')} AS `oo` "
+            . "GROUP BY `oo`.`order_product_id`"
+            . ") AS `oos` "
+            . "ON `oos`.`order_product_id` = `op`.`order_product_id` AND `oos`.`order_id` = `op`.`order_id` "
+            . "WHERE `op`.`order_id` IN ('" . implode("', '", $orderIds) . "') "
+            . "GROUP BY `op`.`order_product_id`"
+        )->fetchAll();
 
         $output = array();
 
         foreach ($results as $result) {
             $tax = (empty($result["tax"])) ? 0 : $result["tax"];
             $currencyValue = 1;
+
             if (!empty($this->ordersCurrencyValue[$result['order_id']])) {
                 $currencyValue = $this->ordersCurrencyValue[$result['order_id']];
             }
 
+            $name = trim($result["name"] . (empty($result['variant_name']) ? '' : " - {$result['variant_name']}"));
+            $name = strlen($name) > 250 ? trim(substr($name, 0, strrpos(substr($name, 0, 250), ' '))) : $name;
+
             $output[] = array(
-                'id' => $result["product_id"],
+                'id' => $result["order_product_id"],
+                'product_id' => $result["product_id"],
                 'order_id' => $result["order_id"],
-                'product_name' => $result["name"],
+                'product_name' => $name,
                 'product_count' => $result["quantity"],
                 'product_price' => ($result["price"] + $tax) * $currencyValue,
                 'product_price_without_vat' => $result["price"] * $currencyValue,
@@ -411,6 +433,7 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'category_id' => $result["category_id"]
             );
         }
+
         return $output;
     }
 

@@ -290,7 +290,7 @@ abstract class XmlGenerator {
         $shopOrder->addItem(new PaymentPriceWithoutVatEntity($payment->payment_price_without_vat));
         
         // shipping section
-        if ($shipping = $this->shipping->getBeanById($order->shipping_id)) {
+        if (($shipping = $this->shipping->getBeanById($order->shipping_id)) !== false) {
             $shopOrder->addItem(new ShippingIdEntity($order->shipping_id));
             $shopOrder->addItem(new ShippingNameEntity($shipping->shipping_name));
             $shopOrder->addItem(new ShippingPriceEntity($shipping->shipping_price));
@@ -299,7 +299,7 @@ abstract class XmlGenerator {
         }
         
         // customer section
-        if ($customerBean = $this->customerBean->getBeanById($order->customer_id)) {
+        if (($customerBean = $this->customerBean->getBeanById($order->customer_id)) !== false) {
             $customer = new CustomerEntity();
             $customer->addItem(new CustomerCityEntity($customerBean->customer_city));
             $customer->addItem(new CustomerCountryEntity($customerBean->customer_country));
@@ -314,12 +314,13 @@ abstract class XmlGenerator {
         }
         
         // product section
-        if ($orderProductBean = $this->orderProductBean->getBeanById($order->id)) {
+        if (($orderProductBean = $this->orderProductBean->getBeanById($order->id)) !== false) {
             $orderProducts = new OrderProductsEntity();
             $productList = $orderProductBean->getProduct_list();
+
             foreach ($productList as $productBean) {
                 $product = new ProductEntity();
-                $product->addItem(new ProductIdEntity($productBean->id));
+                $product->addItem(new ProductIdEntity($productBean->product_id));
                 $product->addItem(new ProductNameEntity($productBean->product_name));
                 $product->addItem(new ProductPriceEntity($productBean->product_price));
                 $product->addItem(new ProductPriceWithoutVatEntity($productBean->product_price_without_vat));
@@ -341,6 +342,7 @@ abstract class XmlGenerator {
                     $product->addItem($productCategories);
                 }
             }
+
             $shopOrder->addItem($orderProducts);
         }
 

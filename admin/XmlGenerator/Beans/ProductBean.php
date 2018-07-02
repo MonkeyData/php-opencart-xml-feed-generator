@@ -9,6 +9,10 @@ namespace MonkeyData\EshopXmlFeedGenerator\XmlGenerator\Beans;
  * @author MD Developers
  */
 class ProductBean extends Beans {
+    /**
+     * @var string|null
+     */
+    protected $product_id = null;
 
     /**
      * @var string|null
@@ -39,6 +43,13 @@ class ProductBean extends Beans {
      * @var int|null // TODO: Ask
      */
     protected $category_id = null;
+
+    /**
+     * @return null|string
+     */
+    public function getProduct_id() {
+        return $this->product_id;
+    }
 
     /**
      * @return null|string
@@ -80,6 +91,15 @@ class ProductBean extends Beans {
      */
     public function getCategory_id() {
         return $this->category_id;
+    }
+
+    /**
+     * @param null|string $product_id
+     * @return ProductBean
+     */
+    public function setProduct_id($product_id) {
+        $this->product_id = $product_id;
+        return $this;
     }
 
     /**
