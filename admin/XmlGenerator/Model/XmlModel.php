@@ -127,6 +127,11 @@ abstract class XmlModel implements XmlModelInterface {
     protected $configObject = null;
 
     /**
+     * @var array $orderShippingPercentualTaxes
+     */
+    private $orderShippingPercentualTaxes;
+
+    /**
      * XmlModel constructor.
      * @param Config|null $config
      */
@@ -194,6 +199,7 @@ abstract class XmlModel implements XmlModelInterface {
      */
     public function getShippings($shipppingIds) {
         $orderTaxes = $this->getOrderTaxes($this->getOrderIds());
+        $this->orderTaxes = $orderTaxes;
         $result = $this->getShippingsItems($shipppingIds);
         $data = new ShippingList();
 
@@ -213,6 +219,7 @@ abstract class XmlModel implements XmlModelInterface {
                 $item['shipping_price'] = $price;
             }
 
+            $this->orderShippingPercentualTaxes[$item['id']] = $item['shipping_price'] - $item['shipping_price_without_vat'];
             $data->addBean(new ShippingBean($item));
         }
 
@@ -296,9 +303,11 @@ abstract class XmlModel implements XmlModelInterface {
     public function getProducts($orderIds) {
         $result = $this->getProductsItems($orderIds);
         $list_of_product_list = new OrderProductsList();
+
         foreach ($result as $row) {
             $this->setProductList($row, $list_of_product_list);
         }
+
         return $list_of_product_list;
     }
 
@@ -313,6 +322,7 @@ abstract class XmlModel implements XmlModelInterface {
         unset($row['order_id']);
         $product_bean = new ProductBean($row);
         $product_bean->validate();
+
         if ($product_list_bean = $list_of_product_list->getBeanById($order_id)) {
             $product_list_bean->getProduct_list()->addBean($product_bean);
             $list_of_product_list->addBean($product_list_bean);
@@ -395,7 +405,14 @@ abstract class XmlModel implements XmlModelInterface {
 
         foreach ($discounts as $discountData) {
             $orderId = $discountData['order_id'];
+            $shippingTax = !empty($this->orderShippingPercentualTaxes[$orderId]) ? $this->orderShippingPercentualTaxes[$orderId] : 0;
+            $discountData['percentual_taxes'] -= $shippingTax;
+            $avgTaxRatio = $discountData['percentual_taxes'] / $discountData['discounted_subtotal'];
+            $discountData['value'] = $discountData['value_without_vat'] * (1 + $avgTaxRatio);
             unset($discountData['order_id']);
+            unset($discountData['percentual_taxes']);
+            unset($discountData['discounted_subtotal']);
+            unset($discountData['value_without_vat']);
             $discountBean = new DiscountBean($discountData);
 
             if (($discountList = $orderDiscountList->getBeanById($orderId)) !== false) {

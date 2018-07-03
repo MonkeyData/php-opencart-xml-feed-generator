@@ -558,11 +558,27 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
      * @return array
      */
     public function getDiscountItems($orderIds) {
-        $results = $this->connection->query(
-            "SELECT `order_total_id`, `order_id`, `title`, `value` "
-            . "FROM {$this->getTableName('order_total')} "
-            . "WHERE `code` = 'coupon' AND `order_id` IN ('" . implode("', '", $orderIds) . "')"
-        )->fetchAll();
+        $selectAttributes = array(
+            "`OC`.`order_total_id`",
+            "`OC`.`order_id`",
+            "-`OC`.`value` AS `coupon_value`",
+            "`OC`.`title`",
+            "`OS`.`value` + `OC`.`value` AS `discounted_subtotal`",
+            "SUM(`OT`.`value`) AS `percentual_taxes`"
+        );
+
+        $sql = "SELECT " . implode(', ', $selectAttributes)
+            . " FROM {$this->getTableName('order_total')} `OC` "
+            . "JOIN {$this->getTableName('order_total')} `OS` "
+            . "ON `OC`.`order_id` = `OS`.`order_id` AND OS.code = 'sub_total' "
+            . "JOIN {$this->getTableName('order_total')} `OT` "
+            . "ON `OC`.`order_id` = `OT`.`order_id` AND `OT`.`code` = 'tax' "
+            . "JOIN {$this->getTableName('tax_rate')} `TR` "
+            . "ON `OT`.`title` = `TR`.`name` AND `TR`.`type` = 'P' "
+            . "WHERE `OC`.`code` = 'coupon' "
+            . "GROUP BY `OT`.`order_id`, `OT`.`code`";
+
+        $results = $this->connection->query($sql)->fetchAll();
 
         $output = array();
 
@@ -577,7 +593,9 @@ class MonkeyDataXmlModel extends XmlModel implements CurrentXmlModelInterface {
                 'id' => $result["order_total_id"],
                 'order_id' => $result["order_id"],
                 'name' => $result["title"],
-                'value' => -($result["value"] * $currencyValue)
+                'value_without_vat' => floatval($result["coupon_value"]) * $currencyValue,
+                'discounted_subtotal' => floatval($result["discounted_subtotal"]) * $currencyValue,
+                'percentual_taxes' => floatval($result["percentual_taxes"]) * $currencyValue
             );
         }
 
